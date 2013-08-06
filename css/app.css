@@ -1,0 +1,36 @@
+
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: #444444;
+    color: white;
+    text-align: center;
+}
+
+h1 {
+    font-size: 3em;
+    text-align: center;
+}
+
+ul {
+    display: inline-block;
+    width: 300px;
+    text-align: left;
+    list-style: none;
+    font-style: italic;
+}
+
+ul li {
+    margin-top: 5px;
+}
+
+pre {
+    color: #44ff66;
+}
+
+a, a:visited {
+    color: white;
+}
