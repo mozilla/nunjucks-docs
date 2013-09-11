@@ -7,25 +7,44 @@
 }
 
 .navbar {
-    padding-right: 1em;
+    padding-right: 10%;
+    padding-left: 10%;
+    width: 100%;
 }
 
-ul.nav li a,
-ul.nav li a:active,
-ul.nav li a:visited,
-.navbar-default ul.nav li a:hover,
-a,
-a:active,
-a:hover {
-    color: rgb(42, 185, 64);
+nav a.logo {
+    font-family: 'Sullivan-Fill', sans-serif;
+    font-size: 2.5em;
+    margin: 0;
+    text-shadow: -1px 3px #999999;
+
+    width: 190px;
+    height: 57px;
+    padding-left: .5em;
+    padding-top: 2px;
+    background: url(/img/headerbg.png) 0 0 no-repeat rgb(248, 248, 248);
+}
+
+nav a.logo, nav a.logo:visited, nav a.logo:active, nav a.logo:hover {
+    color: white;
+    text-decoration: none;
+}
+
+#home .navbar a.logo {
+    display: none;
 }
 
 ul.nav li:hover {
     background-color: #f0f0f0;
 }
 
+ul.nav li a {
+    padding: 18px 15px;
+}
+
 .banner {
-    margin-top: 50px;
+    background-color: transparent;
+    margin-top: 55px;
     text-align: center;
     overflow: hidden;
     margin-bottom: 3em;
@@ -51,6 +70,18 @@ ul.nav li:hover {
     text-shadow: -1px 3px #999999;
     margin: 0;
     padding: 0;
+}
+
+.content {
+    width: 80%;
+    margin: 0 auto;
+    margin-top: 60px;
+    padding-top: 4em;
+}
+
+h1.title {
+    margin-top: 0;
+    margin-bottom: 1em;
 }
 
 .tagline {
@@ -82,6 +113,10 @@ section.opening ul {
     margin-top: 1em;
 }
 
+section.opening ul li {
+    margin: .5em 0;
+}
+
 section.getting-started {
     text-align: center;
 }
@@ -109,30 +144,50 @@ section.whos-using .user {
     margin-bottom: 2em;
 }
 
-.download-modal {
-    background-color: rgba(0, 0, 0, .9);
+.download-screen {
+    background-color: #333333;
     color: white;
     position: absolute;
-    /* opacity: 0; */
     top: 0;
-    left: 0;
     width: 100%;
-    text-align: center;
-    padding: 8em 2em;
+    text-align: left;
 
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
-    
-    transform: perspective(2400px) rotateY(-90deg);
-    perspective-origin: top left;
-    -webkit-transform: rotate(-90deg);
-    transform-origin: top left;
-    -webkit-transform-origin: top left;
-    transition: transform .5s;
-    z-index: 2000;
+    z-index: -10;
+    opacity: 0;
 }
 
-.download-modal h1 {
-    margin-top: 0;
+.download-screen h1 {
+    margin-top: .5em;
+    text-align: center;
+    margin-bottom: .25em;
+    font-size: 5em;
+}
+
+.download-screen a.close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    color: white;
+    text-shadow: none;
+    float: none;
+    z-index: 10;
+    margin: .75em 1em;
+}
+
+.download-screen .col-sm-6 {
+    padding-left: 10%;
+    background-color: #333333;
+    border-left: 3px solid #3f3f3f;
+}
+
+.download-screen .col-sm-6:nth-of-type(2) {
+    padding-right: 10%;
+    padding-left: 2em;
+}
+
+.download-screen pre {
+    background-color: #292929;
+    border: none;
+    color: #f0f0f0;
+    width: 50%;
 }

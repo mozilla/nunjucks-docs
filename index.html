@@ -1,182 +1,180 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Nunjucks</title>
+---
+layout: page
+pageid: home
+---
 
-    <link rel="stylesheet" type="text/css"
-          href="bower_components/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" type="text/css" href="css/app.css" />
-  </head>
+<div class="banner">
+  <div class="banner-screen">
+    <h1>Nunjucks</h1>
+    <div class="tagline">
+      A rich and powerful templating language for JavaScript.
+    </div>
+  </div>
 
-  <body>
-    <nav class="navbar navbar-default navbar-fixed-top">
-      <ul class="nav navbar-nav navbar-right">
-        <li><a href="#" class="download">Download</a></li>
-        <li><a href="https://github.com/jlongster/nunjucks">Github</a></li>
-        <li><a href="#">Docs</a></li>
+  <div class="download-screen">
+    <div class="inner">
+      <a href="#" class="close">x</a>
+
+      <div class="col-sm-6">
+        <h1>Node</h1>
+        <p>
+          Just use npm to install it:
+          <pre><code>$ npm install nunjucks</code></pre>
+        </p>
+        <p>
+          <a href="/getting-started.html">Getting Started &rarr;</a>
+        </p>
+      </div>
+      <div class="col-sm-6">
+        <h1>Browser</h1>
+        <p>
+          Download the full library here: <a href="#">nunjucks-dev.js</a>.
+        </p>
+        <p>
+          If you precompile your templates, you should just use
+          <a href="#">nunjucks.js</a> (<a href="#">minified</a>). This excludes a lot
+          of compiler code and is only 8K after minifying and gzipping.
+        </p>
+
+        <p>
+          <a href="/getting-started.html">Getting Started &rarr;</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page">
+  <section class="opening">
+    <div class="col-sm-6">
+      <div class="tagline2">
+        You've been looking for a more sophisticated templating
+        engine for JavaScript. Well, you found it.
+      </div>
+
+      <ul>
+        <li><strong>Rich</strong> Powerful language with block
+          inheritance, autoescaping, macros, asynchronous
+          control, and more</li>
+        <li><strong>Fast & Lean</strong> High-performant. Small 8K
+          gzipped runtime with precompiled templates in the browser</li>
+        <li><strong>Extensible</strong> Crazy extensible with custom filters and extensions</li>
+        <li><strong>Everywhere</strong> Available in node and all modern web browsers, with
+          thorough precompilation options</li>
       </ul>
-    </nav>
-
-    <div class="download-modal">
-      <h1>Download</h1>
-
-      <div class="col-sm-6">
-        <h4>Node</h4>
-
-        <pre><code>$ npm install nunjucks</code></pre>
-
-        <a href="#" class="close">close</a>
-      </div>
-      <div class="col-sm-6">
-        <h4>Browser</h4>
-
-        
-      </div>
     </div>
 
-    <div class="banner">
-      <h1>Nunjucks</h1>
-      <div class="tagline">
-        A rich and powerful templating language for JavaScript.
-      </div>
-    </div>
-
-    <div class="page">
-      <section class="opening">
-        <div class="col-sm-6">
-          <div class="tagline2">
-            You've been looking for a more sophisticated templating
-            engine for JavaScript. Well, you found it.
-          </div>
-
-          <ul>
-            <li><strong>Rich</strong> Powerful language with block
-            inheritance, autoescaping, macros, asynchronous
-            control, and more</li>
-            <li><strong>Fast & Lean</strong> High-performant. Small 8K
-            gzipped runtime with precompiled templates in the browser</li>
-            <li><strong>Extensible</strong> Crazy extensible with custom filters and extensions</li>
-            <li><strong>Everywhere</strong> Available in node and all modern web browsers, with
-              thorough precompilation options</li>
-          </ul>
-        </div>
-
-        <div class="col-sm-6">
-          <pre>{% <span>extends</span> "base.html" %}
+    <div class="col-sm-6">
+      <pre>{% raw %}{% <span>extends</span> "base.html" %}
 
 {% <span>block</span> header %}
-  &lt;h1&gt;{{ title }}&lt;/h1&gt;
+&lt;h1&gt;{{ title }}&lt;/h1&gt;
 {% <span>endblock</span> %}
 
 {% <span>block</span> content %}
-  &lt;ul&gt;
-  {% <span>for</span> name, item in items %}
-    &lt;li&gt;{{ name }}: {{ item }}&lt;/li&gt;
-  {% <span>endfor</span> %}
-  &lt;/ul&gt;
-{% <span>endblock</span> %}
-</pre>
-        </div>
-      </section>
+&lt;ul&gt;
+{% <span>for</span> name, item in items %}
+&lt;li&gt;{{ name }}: {{ item }}&lt;/li&gt;
+{% <span>endfor</span> %}
+&lt;/ul&gt;
+{% <span>endblock</span> %}{% endraw %}
+      </pre>
+    </div>
+  </section>
 
-      <section class="getting-started">
-        <button class="btn btn-lg btn-success">Getting Started &rarr;</button>
-      </section>
+  <section class="getting-started">
+    <a href="/getting-started.html">
+      <button class="btn btn-lg btn-success">Getting Started &rarr;</button>
+    </a>
+  </section>
 
-      <section class="whos-using">
-        <h3>Who's Using It?</h3>
+  <section class="whos-using">
+    <h3>Who's Using It?</h3>
 
-        <div class="user">
-          <h4>Firefox Marketplace</h4>
-          <div class="col-sm-6">
-            Need content here
-          </div>
-          <div class="col-sm-6">
-            <img src="img/marketplace2x.png" />
-          </div>
-        </div>
-
-        <div class="user">
-          <h4>Mozilla Webmaker</h4>
-          <div class="col-sm-6">
-            Need content here
-          </div>
-          <div class="col-sm-6">
-            <img src="img/webmaker2x.png" />
-          </div>
-        </div>
-
-        <div class="user">
-          <h4>Backbeam</h4>
-
-          <div class="col-sm-6">
-            <blockquote>
-              <p>
-                &ldquo;Backbeam provides tools for mobile and web
-                development. When we were planning the web developing
-                features we needed an easy-to-use yet powerful
-                templating engine. But almost all JavaScript
-                templating engines lacked of important features such
-                as template inheritance or flexibility to add custom
-                behaviours (e.g. custom filters). Then we just saw the
-                announcement of nunjucks on James' website. Since that
-                moment we knew that nunjucks would be THE choice. Now
-                we use nunjucks in many parts of our product. Users
-                can edit HTML and email templates using nunjucks right
-                in their browsers. We are really happy with our choice
-                :)&rdquo;
-              </p>
-
-              <p>&ndash; Alberto Gimeno, founder of <a href="http://backbeam.io/">backbeam.io</a></p>
-            </blockquote>
-          </div>
-          <div class="col-sm-6">
-            <img src="img/backbeam2x.png" />
-          </div>
-        </div>
-
-        <div class="user">
-          <h4>Apostrophe CMS</h4>
-          <div class="col-sm-6">
-            <blockquote>
-              <p>
-                &ldquo;P'unk Avenue chose Nunjucks as the template language for the
-                <a href="http://apostrophenow.org/">Apostrophe</a>
-                content management system, an open source CMS for node
-                developers. We chose Nunjucks because of its close
-                relationship with the Jinja and Twig languages, and
-                also for its test coverage and robust
-                implementation.&rdquo;
-              </p>
-              <p>
-                &ndash; Tom Boutell, Senior Developer at <a href="http://punkave.com/">P'unk Avenue</a>
-              </p>
-            </blockquote>
-          </div>
-          <div class="col-sm-6">
-            <img src="img/apostrophe2x.png" />
-          </div>
-        </div>
-
-        <em><a href="https://github.com/search?q=nunjucks&ref=simplesearch&type=Code">Any many, many more...</a></em>
-      </section>
-
-      <section class="examples">
-        <h3>More Examples</h3>
-
-        <div class="col-sm-6">
-          It allows you to do all this stuff
-        </div>
-
-        <div class="col-sm-6">
-          <pre>{% for k, v in obj %}
-    {{ k }}: {{ v }}
-{% endfor %}</pre>
-        </div>
-      </section>
+    <div class="user">
+      <h4>Firefox Marketplace</h4>
+      <div class="col-sm-6">
+        Need content here
+      </div>
+      <div class="col-sm-6">
+        <img src="img/marketplace2x.png" />
+      </div>
     </div>
 
-    <script src="bower_components/jquery/jquery.min.js"></script>
-    <script src="js/app.js"></script>
-  </body>
-</html>
+    <div class="user">
+      <h4>Mozilla Webmaker</h4>
+      <div class="col-sm-6">
+        Need content here
+      </div>
+      <div class="col-sm-6">
+        <img src="img/webmaker2x.png" />
+      </div>
+    </div>
+
+    <div class="user">
+      <h4>Backbeam</h4>
+
+      <div class="col-sm-6">
+        <blockquote>
+          <p>
+            &ldquo;Backbeam provides tools for mobile and web
+            development. When we were planning the web developing
+            features we needed an easy-to-use yet powerful
+            templating engine. But almost all JavaScript
+            templating engines lacked of important features such
+            as template inheritance or flexibility to add custom
+            behaviours (e.g. custom filters). Then we just saw the
+            announcement of nunjucks on James' website. Since that
+            moment we knew that nunjucks would be THE choice. Now
+            we use nunjucks in many parts of our product. Users
+            can edit HTML and email templates using nunjucks right
+            in their browsers. We are really happy with our choice
+            :)&rdquo;
+          </p>
+
+          <p>&ndash; Alberto Gimeno, founder of <a href="http://backbeam.io/">backbeam.io</a></p>
+        </blockquote>
+      </div>
+      <div class="col-sm-6">
+        <img src="img/backbeam2x.png" />
+      </div>
+    </div>
+
+    <div class="user">
+      <h4>Apostrophe CMS</h4>
+      <div class="col-sm-6">
+        <blockquote>
+          <p>
+            &ldquo;P'unk Avenue chose Nunjucks as the template language for the
+            <a href="http://apostrophenow.org/">Apostrophe</a>
+            content management system, an open source CMS for node
+            developers. We chose Nunjucks because of its close
+            relationship with the Jinja and Twig languages, and
+            also for its test coverage and robust
+            implementation.&rdquo;
+          </p>
+          <p>
+            &ndash; Tom Boutell, Senior Developer at <a href="http://punkave.com/">P'unk Avenue</a>
+          </p>
+        </blockquote>
+      </div>
+      <div class="col-sm-6">
+        <img src="img/apostrophe2x.png" />
+      </div>
+    </div>
+
+    <em><a href="https://github.com/search?q=nunjucks&ref=simplesearch&type=Code">Any many, many more...</a></em>
+  </section>
+
+  <section class="examples">
+    <h3>More Examples</h3>
+
+    <div class="col-sm-6">
+      It allows you to do all this stuff
+    </div>
+
+    <div class="col-sm-6">
+      <pre>code here</pre>
+    </div>
+  </section>
+</div>

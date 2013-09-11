@@ -5,6 +5,8 @@ var requestAnimFrame = (window.requestAnimationFrame ||
                             setTimeout(cb, 1000 / 60);
                         });
 
+var state = {};
+
 $(function() {
     var canvas = document.createElement('canvas');
     var ctx = canvas.getContext('2d');
@@ -15,10 +17,9 @@ $(function() {
 
     $('.banner').prepend(canvas);
 
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
     var last;
     var tris;
+    var running = false;
     var MAX_SUBDIVIDE = 7;
     var EPSILON = 5;
 
@@ -35,6 +36,10 @@ $(function() {
 
     function vcopy(v) {
         return [v[0], v[1]];
+    }
+
+    function vmul(v, scalar) {
+        return [v[0] * scalar, v[1] * scalar];
     }
 
     function vnormalize(v) {
@@ -204,7 +209,7 @@ $(function() {
             var res;
             for(var i=0, l=this.children.length; i<l; i++) {
                 this.children[i].findPoint(point, cb);
-            }    
+            }
         }
         else {
             if(vequal(point, this.v1)) {
@@ -229,13 +234,8 @@ $(function() {
     };
 
     Triangle.prototype.update = function(dt) {
-        // If we have children, need to check to see if all of my
-        // sparks are out, and set a timer to quench them. We set a
-        // timer because otherwise they catch fire immediately because
-        // neighbors re-spark them.
         var sparks = this.sparks;
-        var allDone = !!sparks.length;
-        var numSparks = sparks.length;
+        var allDone = true;
 
         for(var i=0, l=sparks.length; i<l; i++) {
             var spark = sparks[i];
@@ -243,17 +243,42 @@ $(function() {
             allDone = allDone && spark.finished;
         }
 
-        if(allDone && !this.quenchTimer) {
+        // Need to check to see if all of my sparks are out, and set a
+        // timer to quench them. We set a timer because otherwise they
+        // catch fire immediately because neighbors re-spark them.
+        if(this.sparks.length && allDone && !this.quenchTimer) {
             this.quenchTimer = setTimeout(function() {
                 this.sparks = [];
             }.bind(this), 1000);
         }
 
-        for(var i=0, l=this.children.length; i<l; i++) {
-            numSparks += this.children[i].update(dt);
+        if(this.dir) {
+            this.v1 = vadd(this.v1, vmul(this.dir, dt));
+            this.v2 = vadd(this.v2, vmul(this.dir, dt));
+            this.v3 = vadd(this.v3, vmul(this.dir, dt));
         }
 
-        return numSparks;
+        if(this.fadeOut) {
+            this.color[0] = Math.max(this.color[0] - this.fadeOut * dt, 0) | 0;
+            this.color[1] = Math.max(this.color[1] - this.fadeOut * dt, 0) | 0;
+            this.color[2] = Math.max(this.color[2] - this.fadeOut * dt, 0) | 0;
+        }
+
+        var done = true;
+        if(this.children.length) {
+            for(var i=0, l=this.children.length; i<l; i++) {
+                done = this.children[i].update(dt) && done;
+            }
+        }
+        else {
+            done = (!this.sparks.length && !this.fadeOut) ||
+                (this.fadeOut &&
+                 this.color[0] == 0 &&
+                 this.color[1] == 0 &&
+                 this.color[2] == 0);
+        }
+
+        return done;
     };
 
     Triangle.prototype.getRandomLeaf = function() {
@@ -263,6 +288,41 @@ $(function() {
         else {
             return this;
         }
+    };
+
+
+    Triangle.prototype.shootOff = function(center) {
+        this.sparks = [];
+
+        if(this.children.length) {
+            for(var i=0, l=this.children.length; i<l; i++) {
+                this.children[i].shootOff(center);
+            }
+        }
+        else {
+            var ab = vnormalize(vsub(this.v1, center));
+            if(ab[0] < 0) {
+                ab[0] = -1;
+            }
+            else {
+                ab[0] = 1;
+            }
+
+            if(ab[1] < 0) {
+                ab[1] = -1;
+            }
+            else {
+                ab[1] = 1;
+            }
+
+            this.dir = vmul(vnormalize(ab), 500 * Math.random());
+            this.fadeOut = Math.random() * 100;
+        }
+    };
+
+    window.onscroll = function() {
+        var y = window.pageYOffset || document.body.scrollTop;
+        canvas.style.top = y / 2 + 'px';
     };
 
     function init() {
@@ -284,20 +344,16 @@ $(function() {
         }
 
         tris[Math.random() * tris.length | 0].getRandomLeaf().startFire('v2');
-
-        window.onscroll = function() {
-            var y = window.pageYOffset || document.body.scrollTop;
-            canvas.style.top = y / 2 + 'px';
-        };
     }
 
     function render() {
-        ctx.fillStyle = 'black';
+        running = true;
+        ctx.fillStyle = 'rgb(0, 0, 0)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        var numSparks = 0;
-        
+        var done = true;
+
         tris.forEach(function(tri) {
-            numSparks += tri.update(.016);
+            done = tri.update(.016) && done;
             tri.render();
         });
 
@@ -305,43 +361,77 @@ $(function() {
             tri.renderSparks();
         });
 
-        if(numSparks) {
+        if(!done) {
             requestAnimFrame(render);
+        }
+        else {
+            running = false;
         }
     }
 
-    last = Date.now();
     init();
     render();
-});
 
-// UI
+    // UI
 
-$(function() {
-    var modal = $('.download-modal');
+    $('a.download').click(function(e) {
+        window.scrollTo(0, 0);
+        e.preventDefault();
+        $(e.target).blur();
 
-    $('a.download').click(function() {
-        // We need to force the modal to be just above the page
-        // because it isn't that way on initial page load, or if the
-        // width changes
-        var h = modal[0].getBoundingClientRect().height;
-        // modal.css({ top: '-' + h + 'px',
-        //             transition: 'none',
-        //             zIndex: 2000,
-        //             opacity: 1 });
+        var rect = $('.banner canvas')[0].getBoundingClientRect();
 
-        // // Force a reflow
-        // modal[0].getBoundingClientRect();
-
-        // // Make it appear
-        // modal.css({ top: 0,
-        //             transition: 'top .5s' });
-        modal.css({ transform: 'rotate(0)' });
-    });
-
-    $('.download-modal .close').click(function() {
-        modal.css({ 
-            top: '-' + modal[0].getBoundingClientRect().height + 'px'
+        tris.forEach(function(tri) {
+            tri.shootOff([rect.width / 2, rect.height / 2]);
         });
+
+        $('.banner-screen').css({
+            opacity: 0,
+            transition: 'opacity 1s'
+        });
+
+        setTimeout(function() {
+            $('.download-screen').css({
+                opacity: 1,
+                transition: 'opacity .5s',
+                zIndex: 10,
+                height: rect.height
+            });
+
+            $('.download-screen .col-sm-6').height(rect.height);
+        }, 1000);
+
+        if(!running) {
+            render();
+        }
+    });
+
+    $('.download-screen a.close').click(function() {
+        $('.download-screen').css({
+            opacity: 0,
+            transition: 'opacity 1s'
+        });
+        running = false;
+
+        setTimeout(function() {
+            init();
+            render();
+
+            $('.download-screen').css({
+                zIndex: -10
+            });
+
+            $('.banner-screen').css({
+                opacity: 1
+            });
+        }, 1000);
     });
 });
+
+function saveImage() {
+    var canvas = $('canvas')[0];
+    var img = canvas.toDataURL('image/png');
+    var el = document.createElement('img');
+    el.src = img;
+    document.body.appendChild(el);
+}
