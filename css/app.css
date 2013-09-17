@@ -6,23 +6,25 @@
 	font-style: normal;
 }
 
-.navbar {
+.navbar-default {
     padding-right: 10%;
     padding-left: 10%;
     width: 100%;
+    background: #1e8114;
+    border: 0;
+}
+
+#home .navbar-default {
+    background: #fafafa;
+    border-bottom: 1px solid #cccccc;
 }
 
 nav a.logo {
     font-family: 'Sullivan-Fill', sans-serif;
     font-size: 2.5em;
     margin: 0;
-    text-shadow: -1px 3px #999999;
-
-    width: 190px;
-    height: 57px;
-    padding-left: .65em;
+    text-shadow: -1px 2px #111111;
     padding-top: 2px;
-    background: url(/img/headerbg.png) 0 0 no-repeat rgb(248, 248, 248);
 }
 
 nav a.logo, nav a.logo:visited, nav a.logo:active, nav a.logo:hover {
@@ -38,8 +40,13 @@ ul.nav li:hover {
     background-color: #f0f0f0;
 }
 
-ul.nav li a {
+ul.nav li a, ul.nav li a:visited {
     padding: 18px 15px;
+    color: white;
+}
+
+#home ul.nav li a, #home ul.nav li a:visited {
+    color: #666666;
 }
 
 .banner {
@@ -67,7 +74,7 @@ ul.nav li a {
 .banner h1 {
     font-family: 'Sullivan-Fill', sans-serif;
     font-size: 7em;
-    text-shadow: -1px 3px #999999;
+    text-shadow: -1px 3px #111111;
     margin: 0;
     padding: 0;
 }
@@ -86,13 +93,15 @@ h1.title {
 
 .tagline {
     padding-top: .5em;
-    font-size: 1.5em;
+    font-size: 1.75em;
     width: 50%;
     margin: 0 auto;
+    text-shadow: -1px 3px #111111;
+    font-style: italic;
 }
 
 .tagline2 {
-    font-size: 1.25em;
+    font-size: 1.5em;
 }
 
 .page {

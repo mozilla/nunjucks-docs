@@ -42,6 +42,15 @@ $(function() {
         return [v[0] * scalar, v[1] * scalar];
     }
 
+    function vrotate(v, angle) {
+        var cs = Math.cos(angle);
+        var sn = Math.sin(angle);
+        return [
+            v[0] * cs - v[1] * sn,
+            v[0] * sn + v[1] * cs
+        ];
+    }
+
     function vnormalize(v) {
         var l = v[0] * v[0] + v[1] * v[1];
         if(l > 0) {
@@ -81,11 +90,13 @@ $(function() {
 
     Spark.prototype.update = function(dt) {
         if(!this.finished) {
-            this.pos[0] += this.dir[0] * dt * 500;
-            this.pos[1] += this.dir[1] * dt * 500;
+            this.pos[0] += this.dir[0] * dt * 700;
+            this.pos[1] += this.dir[1] * dt * 700;
 
             findPoint(this.pos, function(collision) {
-                collision.tri.startFire(collision.orient);
+                if(Math.random() < .75) {
+                    collision.tri.startFire(collision.orient);
+                }
             });
 
             if(vlength(vsub(this.pos, this.origPos)) >= this.len + this.len / 3) {
@@ -110,16 +121,24 @@ $(function() {
         this.v2 = v2;
         this.v3 = v3;
         this.point = v2;
-        this.color = color || [30, (Math.random() * 60 + 20) | 0, 20];
+        this.color = color || [30, (Math.random() * 60 + 50) | 0, 20];
         this.children = [];
         this.level = level || 0;
         this.sparks = [];
+
+        this.bc = vsub(v3, v2);
+        this.ba = vsub(v1, v2);
+
+        this.bb = [Math.min(v1[0], v2[0], v3[0]),
+                   Math.min(v1[1], v2[1], v3[1]),
+                   Math.max(v1[0], v2[0], v3[0]),
+                   Math.max(v1[1], v2[1], v3[1])];
     }
 
     Triangle.prototype.subdivide = function() {
         var level = this.level;
 
-        if(Math.random() < level / MAX_SUBDIVIDE || level > MAX_SUBDIVIDE) {
+        if(Math.random() < Math.max(level - 2, 0) / MAX_SUBDIVIDE || level > MAX_SUBDIVIDE) {
             return;
         }
 
@@ -196,19 +215,22 @@ $(function() {
             v3 = this.v3;
         }
 
-        var bc = vsub(v3, v2);
-        var ab = vsub(v1, v2);
+        var ba = this.ba;
+        var bc = this.bc;
         this.sparks.push(new Spark(vcopy(v2), vnormalize(bc), vlength(bc),
                                    this.color));
-        this.sparks.push(new Spark(vcopy(v2), vnormalize(ab), vlength(ab),
+        this.sparks.push(new Spark(vcopy(v2), vnormalize(ba), vlength(ba),
                                    this.color));
     };
 
     Triangle.prototype.findPoint = function(point, cb) {
         if(this.children.length) {
-            var res;
-            for(var i=0, l=this.children.length; i<l; i++) {
-                this.children[i].findPoint(point, cb);
+            var bb = this.bb;
+            if(point[0] >= bb[0] && point[1] >= bb[1] &&
+               point[0] <= bb[2] && point[1] <= bb[3]) {
+                for(var i=0, l=this.children.length; i<l; i++) {
+                    this.children[i].findPoint(point, cb);
+                }
             }
         }
         else {
