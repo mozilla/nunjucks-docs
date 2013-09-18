@@ -5,22 +5,33 @@
 
     <link rel="stylesheet" type="text/css"
           href="bower_components/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="css/highlight.css" />
     <link rel="stylesheet" type="text/css" href="css/app.css" />
   </head>
 
   <body id="{{ page.pageid }}">
-    <nav class="navbar navbar-default navbar-fixed-top">
+    <nav class="navbar navbar-default {% if page.pageid == 'home' %}navbar-fixed-top{% endif %}">
       <a class="pull-left logo" href="/">Nunjucks</a>
 
       <ul class="nav navbar-nav navbar-right pull-right">
         <li><a href="#" class="download">Download</a></li>
         <li><a href="https://github.com/jlongster/nunjucks">Github</a></li>
-        <li><a href="#">Docs</a></li>
+        <li>
+          <a href="/templating.html" data-toggle="dropdown">Docs</a>
+
+          <ul class="dropdown-menu">
+            <li><a href="/getting-started.html">Getting Started</a></li>
+            <li><a href="/templating.html">Templates</a></li>
+            <li><a href="/api.html">API</a></li>
+          </ul>
+        </li>
       </ul>
     </nav>
+
 {{ content }}
 
     <script src="bower_components/jquery/jquery.min.js"></script>
+    <script src="bower_components/bootstrap/js/dropdown.js"></script>
     <script src="js/app.js"></script>
   </body>
 </html>

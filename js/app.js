@@ -5,8 +5,6 @@ var requestAnimFrame = (window.requestAnimationFrame ||
                             setTimeout(cb, 1000 / 60);
                         });
 
-var state = {};
-
 $(function() {
     var canvas = document.createElement('canvas');
     var ctx = canvas.getContext('2d');
@@ -172,7 +170,9 @@ $(function() {
             ctx.moveTo(v1[0], v1[1]);
             ctx.lineTo(v2[0], v2[1]);
             ctx.lineTo(v3[0], v3[1]);
-            ctx.fillStyle = ctx.strokeStyle = 'rgb(' + color.join(',') + ')';
+            ctx.fillStyle = ctx.strokeStyle = ('rgb(' + (color[0]|0) + ',' +
+                                               (color[1]|0) + ',' +
+                                               (color[2]|0) + ')');
             ctx.fill();
             ctx.stroke();
         }
@@ -281,9 +281,9 @@ $(function() {
         }
 
         if(this.fadeOut) {
-            this.color[0] = Math.max(this.color[0] - this.fadeOut * dt, 0) | 0;
-            this.color[1] = Math.max(this.color[1] - this.fadeOut * dt, 0) | 0;
-            this.color[2] = Math.max(this.color[2] - this.fadeOut * dt, 0) | 0;
+            this.color[0] = Math.max(this.color[0] - this.fadeOut * dt, 0);
+            this.color[1] = Math.max(this.color[1] - this.fadeOut * dt, 0);
+            this.color[2] = Math.max(this.color[2] - this.fadeOut * dt, 0);
         }
 
         var done = true;
@@ -370,7 +370,8 @@ $(function() {
 
     function render() {
         running = true;
-        ctx.fillStyle = 'rgb(0, 0, 0)';
+        //ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'black';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         var done = true;
 
@@ -437,7 +438,10 @@ $(function() {
 
         setTimeout(function() {
             init();
-            render();
+            
+            if(!running) {
+                render();
+            }
 
             $('.download-screen').css({
                 zIndex: -10
@@ -448,6 +452,8 @@ $(function() {
             });
         }, 1000);
     });
+
+    $('.download-screen').height(canvas.height);
 });
 
 function saveImage() {

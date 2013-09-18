@@ -1,44 +1,86 @@
 ---
 layout: subpage
+pageid: getting-started
 ---
 
-<h1 class="title">Getting Started</h1>
+# Getting Started
 
-```js
-function foo() {
-    return "poop";
-}
+## Node
+
+```
+$ npm install nunjucks
 ```
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. In sit
-amet feugiat turpis. Lorem ipsum dolor sit amet, consectetur
-adipiscing elit. Maecenas nisl nibh, imperdiet ac iaculis nec,
-egestas sed nisl. Suspendisse vehicula nunc non dignissim
-elementum. Curabitur id nulla tristique, aliquam diam quis,
-convallis leo. Nunc sed enim non massa imperdiet varius. Integer
-eu faucibus felis. Morbi interdum mi a elit consectetur elementum.
-Nulla dapibus enim quis nisl facilisis aliquam. Suspendisse
-potenti. Integer nibh odio, malesuada nec accumsan sed, lobortis
-nec nisi. Proin adipiscing aliquam dignissim. Donec tempus sed
-felis id scelerisque. Aliquam viverra eu tortor in egestas.
-Vestibulum ultrices lorem vel nibh imperdiet luctus.
+Once installed, simply use `require('nunjucks')` to load it.
 
-Sed sed tellus vehicula nisi porttitor mollis at et augue. Etiam
-quis tellus eu eros viverra tempus non quis elit. In ultrices
-semper rhoncus. Morbi gravida ut felis sed bibendum. Nam sodales
-tempor orci in placerat. Vivamus facilisis quam sed mi blandit
-elementum. Donec pharetra vel ipsum in fringilla. Nullam vitae
-mauris in felis sollicitudin egestas vel ac mi. Donec tincidunt
-ligula ut odio blandit, sit amet bibendum lectus auctor.
-Vestibulum velit mauris, sollicitudin in diam vel, dapibus
-eleifend diam. Sed at tempor risus. Aliquam accumsan quis leo at
-semper.
+## Browser
 
-Nullam feugiat, urna pellentesque fringilla pharetra, tellus felis
-pulvinar erat, sed lobortis quam libero sit amet magna. Aenean
-ornare eros ac libero pellentesque ultrices. Quisque interdum,
-sapien sit amet malesuada rutrum, purus enim placerat ipsum, ac
-tempor diam risus in lectus. Proin et porta est. Mauris eu cursus
-nunc. Fusce vulputate neque sed dui consectetur auctor. Nunc elit
-mauris, placerat et orci sit amet, congue vulputate nibh.
+Grab <a href="#">nunjucks-dev.js</a> for the full library, and <a
+href="#">nunjucks.js</a> (<a href="#">minified</a>) for the slim
+version. The slim version is only 8K minified and gzipped and only
+works with precompiled templates.
 
+Simply include nunjucks with a `script` tag on the page:
+
+```html
+<script src="nunjucks.js"></script>
+```
+
+or load it as an AMD module:
+
+```js
+define(['nunjucks'], function(nunjucks) {
+});
+```
+
+## Using
+
+This is the simplest way to use nunjucks. First, set any configuration
+flags like autoescaping and then render a string:
+
+```js
+nunjucks.configure({ autoescape: true });
+nunjucks.renderString('Hello {% raw %}{{ username }}{% endraw %}', { username: 'James' });
+```
+
+You usually won't use `renderString`, instead you should write
+templates in individual files and use `render`. In this case, you
+need to tell nunjucks where these files live with the first argument of `configure`:
+
+```js
+nunjucks.configure('views', { autoescape: true });
+nunjucks.render('index.html', { foo: 'bar' });
+```
+
+That way you can inherit and include templates.
+
+The above API works in node and in the browser. In node, nunjucks
+loads templates from the filesystem by default, and in the browser
+loads them over HTTP. If you are using the slim version of nunjucks
+and precompiled your templates, they will automatically be picked up
+by the system and you don't have to do anything different. This makes
+it easy to use the same code in development and production, while only
+using precompiled templates in production.
+
+
+## All of the below should go into the real docs
+
+
+### Async
+
+Nunjucks supports an async API, which is only necessary if you are using any asynchronous filters or extensions:
+
+```js
+nunjucks.render('index.html', { foo: 'bar' }, function(err, res) {
+    // handle err or use the result
+});
+```
+
+Otherwise, all render calls can be used synchronously just as well.
+There is no advantage to the async API by default since template
+loading is either cached or precompiled. It's only necessary if your
+filters or extensions do anything async.
+
+### More APIs
+
+That's only the tip of the iceberg. The above higher-level API uses this more powerful API.
