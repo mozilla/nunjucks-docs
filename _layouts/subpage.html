@@ -4,16 +4,19 @@ layout: page
 
 <div class="content">
   <aside>
-    Documentation
+    <div class="pages">
+      <p><strong>Documentation</strong></p>
 
-    <ul>
-      <li><a href="/getting-started.html">Getting Started</a></li>
-      <li><a href="/templating.html">Templates</a></li>
-      <li><a href="/api.html">API</a></li>
-    </ul>
+      <ul>
+        <li><a href="/getting-started.html">Getting Started</a></li>
+        <li><a href="/templating.html">Templating</a></li>
+        <li><a href="/api.html">API</a></li>
+        <li><a href="/faq.html">FAQ</a></li>
+      </ul>
+    </div>
 
     <div class="toc">
-      {{ page.title }}
+      <p><strong>{{ page.title }}</strong></p>
       {% page_toc %}
     </div>
   </aside>
@@ -22,3 +25,4 @@ layout: page
     {{ content }}
   </div>
 </div>
+

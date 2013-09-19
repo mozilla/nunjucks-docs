@@ -5,7 +5,7 @@ pageid: getting-started
 
 # Getting Started
 
-## Node
+## When Using Node...
 
 ```
 $ npm install nunjucks
@@ -13,7 +13,7 @@ $ npm install nunjucks
 
 Once installed, simply use `require('nunjucks')` to load it.
 
-## Browser
+## When in the Browser...
 
 Grab <a href="#">nunjucks-dev.js</a> for the full library, and <a
 href="#">nunjucks.js</a> (<a href="#">minified</a>) for the slim

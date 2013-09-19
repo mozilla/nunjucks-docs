@@ -6,6 +6,10 @@ var requestAnimFrame = (window.requestAnimationFrame ||
                         });
 
 $(function() {
+    if($('body').attr('id') != 'home') {
+        return;
+    }
+
     var canvas = document.createElement('canvas');
     var ctx = canvas.getContext('2d');
     var w = $('body').width();
@@ -170,9 +174,8 @@ $(function() {
             ctx.moveTo(v1[0], v1[1]);
             ctx.lineTo(v2[0], v2[1]);
             ctx.lineTo(v3[0], v3[1]);
-            ctx.fillStyle = ctx.strokeStyle = ('rgb(' + (color[0]|0) + ',' +
-                                               (color[1]|0) + ',' +
-                                               (color[2]|0) + ')');
+            ctx.fillStyle = ctx.strokeStyle = 'rgb(' + color.join(',') + ')';
+
             ctx.fill();
             ctx.stroke();
         }
@@ -281,9 +284,9 @@ $(function() {
         }
 
         if(this.fadeOut) {
-            this.color[0] = Math.max(this.color[0] - this.fadeOut * dt, 0);
-            this.color[1] = Math.max(this.color[1] - this.fadeOut * dt, 0);
-            this.color[2] = Math.max(this.color[2] - this.fadeOut * dt, 0);
+            this.color[0] = Math.max(this.color[0] - this.fadeOut * dt, 0) | 0;
+            this.color[1] = Math.max(this.color[1] - this.fadeOut * dt, 0) | 0;
+            this.color[2] = Math.max(this.color[2] - this.fadeOut * dt, 0) | 0;
         }
 
         var done = true;
@@ -370,7 +373,6 @@ $(function() {
 
     function render() {
         running = true;
-        //ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = 'black';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         var done = true;
@@ -397,11 +399,8 @@ $(function() {
 
     // UI
 
-    $('a.download').click(function(e) {
+    function showDownload() {
         window.scrollTo(0, 0);
-        e.preventDefault();
-        $(e.target).blur();
-
         var rect = $('.banner canvas')[0].getBoundingClientRect();
 
         tris.forEach(function(tri) {
@@ -427,6 +426,12 @@ $(function() {
         if(!running) {
             render();
         }
+    }
+
+    $('a.download').click(function(e) {
+        e.preventDefault();
+        $(e.target).blur();
+        showDownload();
     });
 
     $('.download-screen a.close').click(function() {
@@ -454,6 +459,10 @@ $(function() {
     });
 
     $('.download-screen').height(canvas.height);
+
+    if(window.location.hash == '#download') {
+        showDownload();
+    }
 });
 
 function saveImage() {

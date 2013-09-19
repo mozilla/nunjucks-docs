@@ -1,11 +1,10 @@
 ---
 layout: subpage
-docs: true
 title: Templates
 ---
 {% raw %}
 
-# Templates
+# Templating
 
 This is a basic overview of the features available in nunjucks. You should refer to [jinja's
 documentation](http://jinja.pocoo.org/docs/templates/) for more in-depth documentation, but keep in mind [how nunjucks is different from

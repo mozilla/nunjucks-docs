@@ -1,6 +1,5 @@
 ---
 layout: subpage
-docs: true,
 title: API
 ---
 {% raw %}

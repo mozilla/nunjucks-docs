@@ -59,7 +59,8 @@ nav a.logo, nav a.logo:visited, nav a.logo:active, nav a.logo:hover {
     color: white;
 }
 
-.navbar-default ul.nav li > a:hover {
+.navbar-default ul.nav li > a:hover,
+.navbar-default ul.nav li.dropdown:hover a {
     color: #666666;
 }
 
@@ -107,15 +108,21 @@ nav a.logo, nav a.logo:visited, nav a.logo:active, nav a.logo:hover {
     width: 80%;
 }
 
+.main p {
+    margin: 1.5em 0;
+}
+
 .main {
     float: right;
     width: 75%;
 }
 
-.navbar-default ul.nav li.open a,
-.navbar-default ul.nav li.open a:visited {
-    background-color: #f0f0f0;
-    color: #666666;
+/* .navbar-default ul.nav li.dropdown-menu a, */
+/* .navbar-default ul.nav li.dropdown-menu a:visited { */
+/* } */
+
+ul.nav li.dropdown:hover > ul.dropdown-menu {
+    display: block;
 }
 
 .navbar-default ul.dropdown-menu li > a,
@@ -124,13 +131,15 @@ nav a.logo, nav a.logo:visited, nav a.logo:active, nav a.logo:hover {
     padding: 10px 15px;
 }
 
-.navbar-default ul.dropdown-menu li > a:hover {
-    background-color: white !important;
+.dropdown-menu {
+    margin-right: -1px;
+    border: 1px solid #dddddd;
+    border-top: 0;
+    box-shadow: none;
+    background-color: white;
 }
 
-.dropdown-menu {
-    border: 0;
-    box-shadow: none;
+.navbar-default li.dropdown ul.dropdown-menu a:hover {
     background-color: #f0f0f0;
 }
 
@@ -141,9 +150,24 @@ aside {
     margin-left: -.5em;
 }
 
-.toc ul {
+.affix {
+    top: 2em;
+    width: 20%;
+}
+
+aside ul {
     margin: .5em 0;
     padding-left: 1em;
+}
+
+aside .pages {
+    font-size: 1.25em;
+}
+
+aside .pages ul {
+    color: #c0c0c0;
+    margin-left: .75em;
+    list-style: circle;
 }
 
 .toc ul li {
@@ -161,7 +185,6 @@ aside {
 
 .toc ul li ul li {
     list-style: circle;
-    list-style-position: outside;
 }
 
 .toc ul li ul li ul li {
@@ -307,4 +330,8 @@ section.whos-using .user {
     border: none;
     color: #f0f0f0;
     width: 50%;
+}
+
+#faq .main h2 {
+    font-size: 1.5em;
 }
