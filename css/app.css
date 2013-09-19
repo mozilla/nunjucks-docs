@@ -112,6 +112,11 @@ nav a.logo, nav a.logo:visited, nav a.logo:active, nav a.logo:hover {
     margin: 1.5em 0;
 }
 
+.main ul {
+    margin-top: -.5em;
+    margin-bottom: 1.5em;
+}
+
 .main {
     float: right;
     width: 75%;
@@ -334,4 +339,13 @@ section.whos-using .user {
 
 #faq .main h2 {
     font-size: 1.5em;
+}
+
+.api-sig {
+    margin-top: -1.25em;
+    font-size: .95em;
+}
+
+.api-desc {
+    margin-top: 1em;
 }

@@ -6,113 +6,148 @@ title: API
 
 # API
 
-Nunjucks borrows a lot of the same concepts from [jinja2's
-API](http://jinja.pocoo.org/docs/api/).
+The API for nunjucks covers rendering templates, adding filters and
+extensions, customizing template loading, and more.
+
+## Simple API
+
+If you don't need deep customization of the system, you can use this simple
+higher-level API for loading and rendering templates.
+
+{% endraw %}
+{% api %}
+render
+nunjucks.render(name, [context], [callback])
+
+Renders the template named **name** with the **context** hash. If
+**callback** is provided, it will be called when done with any
+possible error as the first argument and the result as the second.
+Otherwise, the result is returned from `render` and errors are thrown.
+See [asynchronous support](#asynchronous-support) for more info.
+
+```js
+var res = nunjucks.render('foo.html');
+
+var res = nunjucks.render('foo.html', { username: 'James' });
+
+nunjucks.render('async.html', function(err, res) {
+});
+```
+{% endapi %}
+
+{% api %}
+renderString
+nunjucks.renderString(str, context, [callback])
+
+Same as [`render`](#render), but renders a raw string instead of
+loading a template.
+
+{% raw %}
+```js
+var res = nunjucks.render('Hello {{ username }}', { username: 'James' });
+```
+{% endraw %}
+{% endapi %}
+
+{% api %}
+configure
+nunjucks.configure([path], [opts]);
+
+Tell nunjucks that your templates live at **path** and flip any
+feature on or off with the **opts** hash. You can provide both
+arguments or either of them. **path** defaults to the current working
+directory, and the following options are available in **opts**:
+
+* **autoescape** *(default: false)* controls if output with dangerous characters are
+    escaped automatically. See [autoescaping](#).
+* **tags:** *(default: see nunjucks syntax)* defines the syntax for nunjucks tags. Should be a hash with
+    the following entries: `blockStart`, `blockEnd`, `variableStart`,
+    `variableEnd`, `commentStart`, and `commentEnd`.
+
+`configure` returns an `Environment` instance, which lets you add
+filters and extensions while still using the simple API. See below for
+more information on `Environment`.
+
+```js
+nunjucks.configure('views', { autoescape: true });
+
+nunjucks.configure('views');
+
+nunjucks.configure({ autoescape: true });
+
+var env = nunjucks.configure('views');
+env.addFilter('foo', function(val) { return 'foooo-ed: ' + val; });
+```
+
+{% endapi %}
+{% raw %}
+
+That's it for the simple API! If you want total control over how
+templates are loaded, and more customization, you need to manually
+set up the system as seen below.
 
 ## Environment
 
-An `Environment` is a central object which handles templates. It is
-configurable, specifying how to load and render templates, and which
-extensions are available. It is especially important when dealing with
-template inheritance, as its used to fetch base templates. (Read more
-about the `Environment` in
-[jinja2](http://jinja.pocoo.org/docs/api/#basics)).
+The `Environment` class is the central object which handles templates.
+It knows how to load your templates, and internally templates depend
+on it for inheritance and including templates. The simple API above
+dispatches everything to an `Environment` instance that it keeps for
+you.
 
-### new Environment([loaders], [options])
+You can manually handle it if you want, which allows you to specify
+custom template loaders.
 
-The constructor takes an optional list of
-`loaders`. You can pass a single loader or an array of
-loaders. Loaders specify how to load templates, whether its from the
-file system, a database, or some other source. The type of loader depends on the environment. See below.
+{% endraw %}
+{% api %}
+constructor
+new Environment([loaders], [opts])
+{% endapi %}
+{% raw %}
 
-The `options` object configures the environment. The following options are available:
+The constructor takes a list of **loaders** and a hash of
+configuration parameters as **opts**. Both are optional, but you need
+to pass `null` for **loaders** if you *only* want to specify **opts**.
+You can pass a single loader or an array of loaders. If you pass an
+array of loaders, nunjucks will walk through them in order until one
+of them finds a template. See [`Loader`](#loader) for more info about loaders.
 
-* dev: a boolean which, if true, puts nunjucks into development mode which means that error stack traces will not be cleaned up (useful if debugging filters).
-* autoescape: a boolean which, if true, will escape all output by default See [Autoescaping](/api#Autoescaping).
-* tags: an object specifying custom block start and end tags. See [Customizing Variable and Block Tags](/api#Customizing-Variable-and-Block-Tags).
+The available flags in **opts** is exactly the same as defined in
+[`configure`](#configure).
 
-#### In node.js
-
-The `FileSystemLoader` is available. This takes a path to load templates from. If you don't pass any loaders, a `FileSystemLoader` is created pointing to the current working directory.
-
-```js
-var nunjucks = require('nunjucks');
-
-// Loads templates from the current working directory
-var env = new nunjucks.Environment();
-
-// Loads templates from the "views" folder
-var env = new nunjucks.Environment(new nunjucks.FileSystemLoader('views'));
-```
-
-#### In the Browser
-
-The `HttpLoader` is available. This takes a URL to load templates from (must be the same domain, relative URLs are recommended). If you don't pass any loaders, a `HttpLoader` is created with the `/views` URL.
-
-```
-var nunjucks = require('nunjucks');
-
-// Loads templates from /views
-var env = new nunjucks.Environment();
-
-// Load templates from /templates
-var env = new nunjucks.Environment(new nunjucks.HttpLoader('/templates'))
-```
-
-#### Multiple Loaders
-
-You can also specify multiple loaders and it will look through them in order. This is useful if you want to specify several different template paths, or use a custom loader.
-
-```
-// The environment will look in templates first,
-// then foo/templates, and then try loading
-// from your special MyLoader class
-var env = new nunjucks.Environment([new nunjucks.FileSystemLoader('templates'),
-                                    new nunjucks.FileSystemLoader('foo/templates'),
-                                    new MyLoader()]);
-```
-
-### Autoescaping
-
-By default, nunjucks will render all output as it is. If turn on autoescaping, nunjucks will escape all output by default. It's recommended that you do this for security reasons.
-
-Autoescaping is rather simplistic in nunjucks right now. All you have to do is pass the `autoescape` option as `true` to the `Environment` object. In the future, you will have more control over which files this kicks in.
+In node, the `FileSystemLoader` is available to load templates off the
+filesystem, and in the browser the `WebLoader` is available to load
+over HTTP (or use precompiled templates). If you use the simple
+[`configure`](#configure) API, nunjucks automatically creates the
+appropriate loader for you, depending if your in node or the browser.
+See [`Loader`](#loader) for more information.
 
 ```js
-var env = new nunjucks.Environment(loaders, { autoescape: true });
+// the FileSystemLoader is available if in node
+var env = new Environment(new nunjucks.FileSystemLoader('views'));
+
+var env = new Environment(new nunjucks.FileSystemLoader('views'), { autoescape: false });
+
+var env = new Environment([new nunjucks.FileSystemLoader('views'),
+                           new MyCustomLoader()]);
+
+// the WebLoader is available if in the browser
+var env = new Environment(new nunjucks.WebLoader('/views'));
 ```
 
-### Customizing Variable and Block Tags
+{% endraw %}
+{% api %}
+addFilter
+env.addFilter(name, func, [async])
 
-If you want different tokens than `{{` and the rest for variables, blocks, and comments, you can specify different tokens as the `tags` option:
+Add a custom filter named **name** which calls **func** whenever
+invoked. If the filter needs to be async, **async** must be `true`
+(see [asynchronous support](#asynchronous-support)). **func** receives
+the arguments passed to the filter, and a callback if asynchronous.
 
-```js
-var env = new nunjucks.Environment(loaders, {
-  tags: {
-    blockStart: '<%',
-    blockEnd: '%>',
-    variableStart: '<$',
-    variableEnd: '$>',
-    commentStart: '<#',
-    commentEnd: '#>'
-  }
-});
-```
+See <a href="/api#Custom-Filters">Custom Filters</a>.
 
-Using this environment, templates will look like this:
-
-```
-<ul>
-<% for item in items %>
-  <li><$ item $></li>
-<% endfor %>
-</ul>
-```
-
-
-### Registering custom filters
-
-Call the `addFilter` method on the environment to register a filter. See <a href="/api#Custom-Filters">Custom Filters</a>.
+{% endapi %}
+{% raw %}
 
 ### Loading a template
 
@@ -165,8 +200,129 @@ tmpl.render({ username: "James" });
 // Displays "Hello James"
 ```
 
-You cannot use template inheritance if you create the Template by hand. Only templates retrieved from an `Environment` can use inheritance.
+You cannot use template inheritance if you create the Template by
+hand. Only templates retrieved from an `Environment` can use
+inheritance.
 
+## Loader
+
+### node
+
+The `FileSystemLoader` is available. This takes a path to load templates from. If you don't pass any loaders, a `FileSystemLoader` is created pointing to the current working directory.
+
+```js
+var nunjucks = require('nunjucks');
+
+// Loads templates from the current working directory
+var env = new nunjucks.Environment();
+
+// Loads templates from the "views" folder
+var env = new nunjucks.Environment(new nunjucks.FileSystemLoader('views'));
+```
+
+### browser
+
+The `HttpLoader` is available. This takes a URL to load templates from (must be the same domain, relative URLs are recommended). If you don't pass any loaders, a `HttpLoader` is created with the `/views` URL.
+
+```
+var nunjucks = require('nunjucks');
+
+// Loads templates from /views
+var env = new nunjucks.Environment();
+
+// Load templates from /templates
+var env = new nunjucks.Environment(new nunjucks.HttpLoader('/templates'))
+```
+
+### Multiple Loaders
+
+You can also specify multiple loaders and it will look through them in order. This is useful if you want to specify several different template paths, or use a custom loader.
+
+```
+// The environment will look in templates first,
+// then foo/templates, and then try loading
+// from your special MyLoader class
+var env = new nunjucks.Environment([new nunjucks.FileSystemLoader('templates'),
+                                    new nunjucks.FileSystemLoader('foo/templates'),
+                                    new MyLoader()]);
+```
+
+## Asynchronous Support
+
+You only need to read this section if you are interested in
+asynchronous rendering. There is no performance benefit to this, it is
+soley to allow custom filters and extensions to make async calls. If
+you don't care about this, you should simply use the normal API like
+`var res = env.render('foo.html');`. There's no need to force the
+`callback` on you, and it's why it's optional in all the rendering
+functions.
+
+As of version 1.0, nunjucks provides a way to render templates
+asynchronously. This means that custom filters and extensions can do
+stuff like fetch things from the database, and template rendering is
+"paused" until the callback is called.
+
+Template loaders can be async as well, allowing you to load templates
+from a database or somewhere else. If you are using an async template
+loader, you must use the async API. The builtin loaders that load from
+the filesystem and over HTTP are synchronous, which is not a
+performance problem because they are cached from the filesystem and you
+should precompile your templates and never use HTTP in production.
+
+Here's an example of using the async API:
+
+```js
+var env = nunjucks.configure('views');
+
+env.addFilter('lookup', function(name, cb) {
+    db.getItem(name, cb);
+}, true);
+
+env.render('{{ item|lookup }}', function(err, res) {
+    // do something with res
+});
+```
+
+Note that `addFilter` requires `true` as the last argument to indicate
+that it's async. Read more async [`filters`](), [`extensions`](), and
+[`loaders`]().
+
+## Autoescaping
+
+By default, nunjucks will render all output as it is. If turn on autoescaping, nunjucks will escape all output by default. It's recommended that you do this for security reasons.
+
+Autoescaping is rather simplistic in nunjucks right now. All you have to do is pass the `autoescape` option as `true` to the `Environment` object. In the future, you will have more control over which files this kicks in.
+
+```js
+var env = new nunjucks.Environment(loaders, { autoescape: true });
+```
+
+## Customizing Variable and Block Tags
+
+If you want different tokens than `{{` and the rest for variables, blocks, and comments, you can specify different tokens as the `tags` option:
+
+```js
+var env = new nunjucks.Environment(loaders, {
+  tags: {
+    blockStart: '<%',
+    blockEnd: '%>',
+    variableStart: '<$',
+    variableEnd: '$>',
+    commentStart: '<#',
+    commentEnd: '#>'
+  }
+});
+```
+
+Using this environment, templates will look like this:
+
+```
+<ul>
+<% for item in items %>
+  <li><$ item $></li>
+<% endfor %>
+</ul>
+```
 
 ## Using Nunjucks in the Browser
 
@@ -279,6 +435,8 @@ The only problem now is that you need to use the [nunjucks-dev.js](https://githu
 A new precompiled API is coming in a future version to make the above easier.
 
 ## Custom Filters
+
+TODO: talk about async here
 
 To install a custom filter, use the `Environment` method `addFilter`.
 A filter is simply a function that takes the target object as the
