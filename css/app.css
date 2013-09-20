@@ -158,6 +158,8 @@ aside {
 .affix {
     top: 2em;
     width: 20%;
+    max-height: 100%;
+    overflow: auto;
 }
 
 aside ul {

@@ -58,25 +58,30 @@ feature on or off with the **opts** hash. You can provide both
 arguments or either of them. **path** defaults to the current working
 directory, and the following options are available in **opts**:
 
+* **watch** *(default: true)* reload templates when they are changed
+* **express** an express app that nunjucks should install to
 * **autoescape** *(default: false)* controls if output with dangerous characters are
-    escaped automatically. See [autoescaping](#).
-* **tags:** *(default: see nunjucks syntax)* defines the syntax for nunjucks tags. Should be a hash with
-    the following entries: `blockStart`, `blockEnd`, `variableStart`,
-    `variableEnd`, `commentStart`, and `commentEnd`.
+    escaped automatically. See [autoescaping](#autoescaping)
+* **tags:** *(default: see nunjucks syntax)* defines the syntax for
+    nunjucks tags. See [Customizing Syntax](#customizing-syntax)
 
 `configure` returns an `Environment` instance, which lets you add
 filters and extensions while still using the simple API. See below for
 more information on `Environment`.
 
 ```js
-nunjucks.configure('views', { autoescape: true });
-
 nunjucks.configure('views');
 
 nunjucks.configure({ autoescape: true });
 
+nunjucks.configure('views', {
+    autoescape: true,
+    express: app,
+    watch: true
+});
+
 var env = nunjucks.configure('views');
-env.addFilter('foo', function(val) { return 'foooo-ed: ' + val; });
+// do stuff with env
 ```
 
 {% endapi %}
@@ -101,31 +106,31 @@ custom template loaders.
 {% api %}
 constructor
 new Environment([loaders], [opts])
-{% endapi %}
-{% raw %}
 
 The constructor takes a list of **loaders** and a hash of
-configuration parameters as **opts**. Both are optional, but you need
-to pass `null` for **loaders** if you *only* want to specify **opts**.
-You can pass a single loader or an array of loaders. If you pass an
-array of loaders, nunjucks will walk through them in order until one
-of them finds a template. See [`Loader`](#loader) for more info about loaders.
+configuration parameters as **opts**. If **loaders** is null, it
+defaults to loading from the current directory or URL. You can pass a
+single loader or an array of loaders. If you pass an array of loaders,
+nunjucks will walk through them in order until one of them finds a
+template. See [`Loader`](#loader) for more info about loaders.
 
-The available flags in **opts** is exactly the same as defined in
-[`configure`](#configure).
+The available flags in **opts** is **autoescape** and **tags**. Read
+more about those options in [`configure`](#configure) (the express and
+watch options are not applicable here).
 
-In node, the `FileSystemLoader` is available to load templates off the
-filesystem, and in the browser the `WebLoader` is available to load
-over HTTP (or use precompiled templates). If you use the simple
-[`configure`](#configure) API, nunjucks automatically creates the
-appropriate loader for you, depending if your in node or the browser.
-See [`Loader`](#loader) for more information.
+In node, the [`FileSystemLoader`](#filesystemloader) is available to
+load templates off the filesystem, and in the browser the [`WebLoader`](#webloader)
+is available to load over HTTP (or use precompiled templates). If you
+use the simple [`configure`](#configure) API, nunjucks automatically
+creates the appropriate loader for you, depending if your in node or
+the browser. See [`Loader`](#loader) for more information.
 
 ```js
 // the FileSystemLoader is available if in node
 var env = new Environment(new nunjucks.FileSystemLoader('views'));
 
-var env = new Environment(new nunjucks.FileSystemLoader('views'), { autoescape: false });
+var env = new Environment(new nunjucks.FileSystemLoader('views'),
+                          { autoescape: false });
 
 var env = new Environment([new nunjucks.FileSystemLoader('views'),
                            new MyCustomLoader()]);
@@ -133,119 +138,383 @@ var env = new Environment([new nunjucks.FileSystemLoader('views'),
 // the WebLoader is available if in the browser
 var env = new Environment(new nunjucks.WebLoader('/views'));
 ```
+{% endapi %}
 
+{% api %}
+render
+env.render(name, [context], [callback])
+
+Render the template named **name** with the optional **context** hash.
+If **callback** is supplied, call it when done with any errors and the
+result (see [asynchronous support](#asynchronous-support)), otherwise
+return the rendered string.
+
+```js
+var res = nunjucks.render('foo.html');
+
+var res = nunjucks.render('foo.html', { username: 'James' });
+
+nunjucks.render('async.html', function(err, res) {
+});
+```
+
+{% endapi %}
+
+{% api %}
+renderString
+env.renderString(src, [context], [callback])
+
+Same as [`render`](#render1), but renders a raw string instead of
+loading a template.
+
+{% raw %}
+```js
+var res = nunjucks.render('Hello {{ username }}', { username: 'James' });
+```
 {% endraw %}
+{% endapi %}
+
 {% api %}
 addFilter
 env.addFilter(name, func, [async])
 
 Add a custom filter named **name** which calls **func** whenever
 invoked. If the filter needs to be async, **async** must be `true`
-(see [asynchronous support](#asynchronous-support)). **func** receives
-the arguments passed to the filter, and a callback if asynchronous.
-
-See <a href="/api#Custom-Filters">Custom Filters</a>.
+(see [asynchronous support](#asynchronous-support)). See <a
+href="/api.html#custom-filters">Custom Filters</a>.
 
 {% endapi %}
-{% raw %}
 
-### Loading a template
+{% api %}
+getFilter
+env.getFilter(name)
+Get the filter, which is just a function, named **name**.
+{% endapi %}
 
-Call the `getTemplate` method to retrieve a template.
+{% api %}
+addExtension
+env.addExtension(name, ext)
 
-```
-var tmpl = env.getTemplate('page.html');
-tmpl.render({ foo: 'bar' });
-```
+Add the custom extension **ext** named **name**. **ext** is an object
+with a few specific methods that are called by the extension system.
+See [Custom Tags](#custom-tags).
 
-### Rendering a template
+{% endapi %}
 
-The `render` method is a shortcut for rendering templates.
+{% api %}
+getExtension
+env.getExtension(name)
+Get an extension named **name**.
+{% endapi %}
+
+{% api %}
+getTemplate
+env.getTemplate(name, [eagerCompile], [callback])
+
+Retrieve the template named **name**. If **eagerCompile** is `true`,
+compile it now instead of on render. If **callback** is supplied, call
+it with any errors and a template (if found), otherwise return
+synchronously. If using any async loaders, you must use the async API.
+The builtin loaders do not require this. See
+[asynchronous support](#asynchronous-support) and [loaders](#loader).
 
 ```js
-env.render('page.html', { foo: 'bar' });
+var tmpl = env.getTemplate('page.html');
 
-// is equal to
+var tmpl = env.getTemplate('page.html', true);
 
-env.getTemplate('page.html').render({ foo: 'bar' });
+env.getTemplate('from-async-loader.html', function(err, tmpl) {
+});
 ```
+{% endapi %}
 
-### Registering with Express
+{% api %}
+express
+env.express(app)
 
-Nunjucks comes with special [express](http://expressjs.com/) support. Simple call the `express` method and pass the app and everything will be set up for you.
+Install nunjucks as the rendering engine for the express **app**.
+After doing this, you can use express normally. Note that you can do
+this automatically with the simple API call [`configure`](#configure)
+by passing in the app as the **express** option.
 
 ```js
 var app = express();
 env.express(app);
-```
 
-For more details, see [Express support](/home#Express) on the overview page.
+app.get('/', function(req, res) {
+    res.render('index.html');
+});
+```
+{% endapi %}
+{% raw %}
 
 ## Template
 
 A `Template` is an object that handles the compiling of template
-strings and rendering them. The `Environment` method `getTemplate`
-returns a `Template` object. You can also create one yourself.
+strings and rendering them. Usually the `Environment` handles them for
+you, but you can easily use it yourself. If you don't connect a
+template with an environment, you can't include or inherit any other
+templates.
 
+{% endraw %}
+{% api %}
+constructor
+new Template(src, [env], [path], [eagerCompile])
+
+The constructor takes a template string **src**, an optional
+`Environment` instance **env** to use for loading other templates, a
+string **path** describing the location/path for debugging purposes,
+and a boolean **eagerCompile** which, if `true`, kicks off compilation
+immediately instead of waiting until the template is rendered.
+
+{% raw %}
 ```js
-var nunjucks = require('nunjucks');
 var tmpl = new nunjucks.Template('Hello {{ username }}');
+
+tmpl.render({ username: "James" }); // -> "Hello James"
 ```
+{% endraw %}
 
-Call the `render` method to render it with a context.
+{% endapi %}
 
-```js
-tmpl.render({ username: "James" });
+{% api %}
+render
+tmpl.render(context, [callback])
 
-// Displays "Hello James"
-```
+Renders the template with the optional **context** hash. If
+**callback** is supplied, call it when done with any errors and the
+result (see [asynchronous support](#asynchronous-support)), otherwise
+return the rendered string.
 
-You cannot use template inheritance if you create the Template by
-hand. Only templates retrieved from an `Environment` can use
-inheritance.
+{% endapi %}
+{% raw %}
 
 ## Loader
 
-### node
+A loader is an object that takes a template name and loads it from a
+source, such as the filesystem or network. The following two builtin
+loaders exist, each for different contexts.
 
-The `FileSystemLoader` is available. This takes a path to load templates from. If you don't pass any loaders, a `FileSystemLoader` is created pointing to the current working directory.
+{% endraw %}
+{% api %}
+FileSystemLoader
+new FileSystemLoader([searchPaths], [noWatch])
+
+This is only available to node. It will load templates from the
+filesystem, using the **searchPaths** array as paths to look for
+templates. **searchPaths** can also be a single path for where
+templates live, and it defaults to the current working directory. If
+**noWatch** is `true`, templates are permanently cached and you won't
+see any changes; otherwise it uses `fs.watch` to watch for changes.
 
 ```js
-var nunjucks = require('nunjucks');
-
-// Loads templates from the current working directory
-var env = new nunjucks.Environment();
-
 // Loads templates from the "views" folder
 var env = new nunjucks.Environment(new nunjucks.FileSystemLoader('views'));
 ```
 
-### browser
+{% endapi %}
 
-The `HttpLoader` is available. This takes a URL to load templates from (must be the same domain, relative URLs are recommended). If you don't pass any loaders, a `HttpLoader` is created with the `/views` URL.
+{% api %}
+WebLoader
+new WebLoader([baseURL], [neverUpdate])
+
+This is only available in the browser. **baseURL** is the URL to load
+templates from (must be the same domain), and it defaults to the
+current relative directory. If **neverUpdate** is `true` templates
+will only ever be fetched once, so you won't see any updates to
+templates; the default is to load the template every time it is
+rendered.
+
+This loader also recognizes when precompiled templates are available
+and automatically uses them instead of fetching over HTTP. In
+production, this should always be the case. See
+[Precompiling Templates](#precompiling-templates).
+
+```js
+// Load templates from /views
+var env = new nunjucks.Environment(new nunjucks.WebLoader('/views'))
+```
+{% endapi %}
+{% raw %}
+
+### Writing a Loader
+
+You can write loaders for more complex loading, like from a database.
+If you want to do this, just create an object that has a method
+`getSource(name)`, where **name** is the name of the template. That's it.
+
+```js
+var MyLoader = {
+    getSource: function(name) {
+       // load the template
+    }
+}
+```
+
+It can get a little more complex. If you want to track updates to
+templates and bust the internal cache so that you can see updates, you
+need to extend the `Loader` class. This gives you `emit` method that
+can fire events. You need to call it 
+
+```js
+var MyLoader = nunjucks.Loader.extend({
+    init: function() {
+        // setup a process which watches templates here
+        // and call `this.emit('update', name)` when a template
+        // is changed
+    }
+    
+    getSource: function(name) {
+        // load the template
+    }
+});
+```
+
+There's one last piece: asynchronous loaders. So far, all of the
+loaders have been synchronous; `getSource` returns the source
+immediately. The benefit of this is that the user isn't forced to use
+the asynchronous API and be aware of edge cases about async templates.
+You might want to load from a database, however.
+
+Just add an `async: true` property to your loader and it will be used
+asynchronously.
+
+```js
+var MyLoader = nunjucks.Loader.extend({
+    async: true,
+    
+    getSource: function(name, callback) {
+        // load the template
+        // ...
+        callback(err, res);
+    }
+});
+```
+
+Remember that you now have to use the asynchronous API. See
+[asynchronous support](#asynchronous-support).
+
+## Browser Precompilation
+
+When you use `nunjucks-min.js` in production, **you have to precompile
+your templates**. Precompilation simply generates the javascript for
+your template once, and you save it and only load the generated code
+into the page. This is much faster than compiling templates every time
+the page loads.
+
+Nunjucks comes with a script named `nunjucks-precompile` to perform
+this task (make sure you have `node_modules/.bin` in your `$PATH`).
+You pass it a folder and it compiles all of them and dumps javascript
+to standard out, which you should pipe into a single js file.
 
 ```
-var nunjucks = require('nunjucks');
+$ nunjucks-precompile
+Usage: nunjucks-precompile <folder>
 
-// Loads templates from /views
-var env = new nunjucks.Environment();
+$ nunjucks-precompile views > templates.js
 
-// Load templates from /templates
-var env = new nunjucks.Environment(new nunjucks.HttpLoader('/templates'))
+$ ls views
+base.html
+item.html
+foo.html
 ```
 
-### Multiple Loaders
+Now just include `templates.js` in your site (or whatever you named
+the js file). Your script tags should look like this:
 
-You can also specify multiple loaders and it will look through them in order. This is useful if you want to specify several different template paths, or use a custom loader.
+```html
+<script src="/js/nunjucks-min.js"></script>
+<script src="/js/templates.js"></script>
+```
 
+Make sure to include nunjucks before your templates. Your base js path might be different too.
+
+The precompiled templates sets up an `Environment` object for you,
+which you can access as `nunjucks.env`. `nunjucks` is the global
+object defined by the main js file.
+
+You don't want to change your javascript to specialize for the
+production version, which predefines an `Environment` object. Here's
+how you should make your code work in both environments:
+
+```js
+if(!nunjucks.env) {
+    // If not precompiled, create an environment with an HTTP
+    // loader
+    nunjucks.env = new nunjucks.Environment(new nunjucks.HttpLoader('/views'));
+}
+
+// Define a shortcut if you want
+var env = nunjucks.env;
 ```
-// The environment will look in templates first,
-// then foo/templates, and then try loading
-// from your special MyLoader class
-var env = new nunjucks.Environment([new nunjucks.FileSystemLoader('templates'),
-                                    new nunjucks.FileSystemLoader('foo/templates'),
-                                    new MyLoader()]);
+
+You should change the `"/views"` argument of `HttpLoader` to whatever
+base URL your templates are served on. You can also define the
+`Environment` object wherever you like, just make sure to check for
+`nunjucks.env` if it's defined for precompiled templates.
+
+Now, use templates like you normally would:
+
+```js
+var el = $(env.render('item.html', { name: 'james' }));
+$('body').append(el);
 ```
+
+By default, the development version loads the template every time it's
+rendered. It's very helpful for changes to be automatically viewable
+in some cases, but you can turn it off by passing `true` when
+constructing the `HttpLoader` as a second argument:
+
+```js
+nunjucks.env = new nunjucks.Environment(
+    // Cache templates and never reload them
+    new nunjucks.HttpLoader('/views', true);
+);
+```
+
+Nunjucks fully supports AMD. The integration looks a little different,
+and conditionally including precompiled templates is a little tricky.
+
+First off, if you are using an AMD loader like
+[require.js](http://requirejs.org/) you can simply load nunjucks like
+normal:
+
+```js
+define(['nunjucks'], function(nunjucks) {
+    // ...
+})
+```
+
+Nunjucks will not create a global object if you load it this way.
+
+When you [precompile your templates](/api#Precompiling-Templates) in
+production like any good boy or girl, the generated file is also a
+normal AMD module. So you simply need to load it as well, and then it
+works the same way as non-AMD code (it automatically creates an
+Environment for you and assigns it to `nunjucks.env`). Assuming you
+compiled your templates into a `templates.js` file, your final code to
+support both development and production would look like this:
+
+```js
+define(['nunjucks', 'templates'], function(nunjucks) {
+    if(!nunjucks.env) {
+        nunjucks.env = new nunjucks.Environment(new nunjucks.HttpLoader('/views'));
+    }
+})
+```
+
+Replacing `/views` with whatever base URL your template live at, of course.
+
+The only problem now is that you need to use the
+[nunjucks-dev.js](https://github.com/jlongster/nunjucks/tree/master/browser)
+file on dev and the
+[nunjucks-min.js](https://github.com/jlongster/nunjucks/tree/master/browser)
+on production, and require.js will try to load `templates.js` on dev.
+I recommend that you copy or symlink `nunjucks-dev.js` to
+`nunjucks.js` on dev and the same for `nunjucks-min.js` on prod, and
+create a blank `templates.js` file for dev.
+
+A new precompiled API is coming in a future version to make the above easier.
 
 ## Asynchronous Support
 
@@ -285,21 +554,28 @@ env.render('{{ item|lookup }}', function(err, res) {
 
 Note that `addFilter` requires `true` as the last argument to indicate
 that it's async. Read more async [`filters`](), [`extensions`](), and
-[`loaders`]().
+[`loaders`](#loader).
 
 ## Autoescaping
 
-By default, nunjucks will render all output as it is. If turn on autoescaping, nunjucks will escape all output by default. It's recommended that you do this for security reasons.
+By default, nunjucks will render all output as it is. If turn on
+autoescaping, nunjucks will escape all output by default. It's
+recommended that you do this for security reasons.
 
-Autoescaping is rather simplistic in nunjucks right now. All you have to do is pass the `autoescape` option as `true` to the `Environment` object. In the future, you will have more control over which files this kicks in.
+Autoescaping is rather simplistic in nunjucks right now. All you have
+to do is pass the `autoescape` option as `true` to the `Environment`
+object. In the future, you will have more control over which files
+this kicks in.
 
 ```js
 var env = new nunjucks.Environment(loaders, { autoescape: true });
 ```
 
-## Customizing Variable and Block Tags
+## Customizing Syntax
 
-If you want different tokens than `{{` and the rest for variables, blocks, and comments, you can specify different tokens as the `tags` option:
+If you want different tokens than `{{` and the rest for variables,
+blocks, and comments, you can specify different tokens as the `tags`
+option:
 
 ```js
 var env = new nunjucks.Environment(loaders, {
@@ -323,116 +599,6 @@ Using this environment, templates will look like this:
 <% endfor %>
 </ul>
 ```
-
-## Using Nunjucks in the Browser
-
-Since we're using javascript already, all of your templates are available in the browser! This is extremely helpful because you no longer have to write templates specifically for either the server or the browser.
-
-First, you need to download the js file for the browser. You can get it in the [`browser` folder of nunjucks](https://github.com/jlongster/nunjucks/tree/v0.1.10/browser).
-
-You'll see 3 different files:
-
-* `nunjucks-dev.js`: To be used in development, this includes the full compiler and loads templates individually when they are requested. Templates are not cached, so changes are automatically available.
-* `nunjucks.js`: This is a 20K file that only includes the runtime needed for templates (no compiler). You must precompile your templates.
-* `nunjucks-min.js`: To be used in production, this is an 8K file that is simply a minified version of `nunjucks.js`. You must precompile your templates.
-
-You should use `nunjucks-dev.js` in development, and **only `nunjucks-min.js` in production**. The production version is *much* faster.
-
-Once one of these files is loaded in the browser, a global object named `nunjucks` will be available with the same API as if you required it with node.
-
-### Precompiling Templates
-
-When you use `nunjucks-min.js` in production, **you have to precompile your templates**. Precompilation simply generates the javascript for your template once, and you save it and only load the generated code into the page. This is much faster than compiling templates every time the page loads.
-
-Nunjucks comes with a script named `nunjucks-precompile` to perform this task (make sure you have `node_modules/.bin` in your `$PATH`). You pass it a folder and it compiles all of them and dumps javascript to standard out, which you should pipe into a single js file.
-
-```
-$ nunjucks-precompile
-Usage: nunjucks-precompile <folder>
-
-$ nunjucks-precompile views > templates.js
-
-$ ls views
-base.html
-item.html
-foo.html
-```
-
-Now just include `templates.js` in your site (or whatever you named the js file). Your script tags should look like this:
-
-```html
-<script src="/js/nunjucks-min.js"></script>
-<script src="/js/templates.js"></script>
-```
-
-Make sure to include nunjucks before your templates. Your base js path might be different too.
-
-The precompiled templates sets up an `Environment` object for you, which you can access as `nunjucks.env`. `nunjucks` is the global object defined by the main js file.
-
-### Browser Integration for Development and Production
-
-You don't want to change your javascript to specialize for the production version, which predefines an `Environment` object. Here's how you should make your code work in both environments:
-
-```js
-if(!nunjucks.env) {
-    // If not precompiled, create an environment with an HTTP
-    // loader
-    nunjucks.env = new nunjucks.Environment(new nunjucks.HttpLoader('/views'));
-}
-
-// Define a shortcut if you want
-var env = nunjucks.env;
-```
-
-You should change the `"/views"` argument of `HttpLoader` to whatever base URL your templates are served on. You can also define the `Environment` object wherever you like, just make sure to check for `nunjucks.env` if it's defined for precompiled templates.
-
-Now, use templates like you normally would:
-
-```js
-var el = $(env.render('item.html', { name: 'james' }));
-$('body').append(el);
-```
-
-By default, the development version loads the template every time it's rendered. It's very helpful for changes to be automatically viewable in some cases, but you can turn it off by passing `true` when constructing the `HttpLoader` as a second argument:
-
-```js
-nunjucks.env = new nunjucks.Environment(
-    // Cache templates and never reload them
-    new nunjucks.HttpLoader('/views', true);
-);
-```
-
-### AMD Support
-
-*Released in 0.1.9*
-
-Nunjucks fully supports AMD. The integration looks a little different, and conditionally including precompiled templates is a little tricky.
-
-First off, if you are using an AMD loader like [require.js](http://requirejs.org/) you can simply load nunjucks like normal:
-
-```js
-define(['nunjucks'], function(nunjucks) {
-    // ...
-})
-```
-
-Nunjucks will not create a global object if you load it this way.
-
-When you [precompile your templates](/api#Precompiling-Templates) in production like any good boy or girl, the generated file is also a normal AMD module. So you simply need to load it as well, and then it works the same way as non-AMD code (it automatically creates an Environment for you and assigns it to `nunjucks.env`). Assuming you compiled your templates into a `templates.js` file, your final code to support both development and production would look like this:
-
-```js
-define(['nunjucks', 'templates'], function(nunjucks) {
-    if(!nunjucks.env) {
-        nunjucks.env = new nunjucks.Environment(new nunjucks.HttpLoader('/views'));
-    }
-})
-```
-
-Replacing `/views` with whatever base URL your template live at, of course.
-
-The only problem now is that you need to use the [nunjucks-dev.js](https://github.com/jlongster/nunjucks/tree/master/browser) file on dev and the [nunjucks-min.js](https://github.com/jlongster/nunjucks/tree/master/browser) on production, and require.js will try to load `templates.js` on dev. I recommend that you copy or symlink `nunjucks-dev.js` to `nunjucks.js` on dev and the same for `nunjucks-min.js` on prod, and create a blank `templates.js` file for dev.
-
-A new precompiled API is coming in a future version to make the above easier.
 
 ## Custom Filters
 
@@ -485,7 +651,7 @@ The template can use it like this:
 
 You *must* pass all of the positional arguments before keyword arguments (`foo(1)` is valid but `foo(1, bar=10)` is not). Also, you cannot set a positional argument with a keyword argument like you can in Python (such as `foo(1, y=1)`)
 
-## Custom Tags & Extensions
+## Custom Tags
 
 You can create more complicated extensions by creating custom tags. This exposes the parser API and allows you to do anything you want with the template.
 

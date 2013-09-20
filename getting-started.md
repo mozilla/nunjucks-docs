@@ -44,43 +44,41 @@ nunjucks.renderString('Hello {% raw %}{{ username }}{% endraw %}', { username: '
 ```
 
 You usually won't use `renderString`, instead you should write
-templates in individual files and use `render`. In this case, you
-need to tell nunjucks where these files live with the first argument of `configure`:
+templates in individual files and use `render`. That way you can
+inherit and include templates. In this case, you need to tell nunjucks
+where these files live with the first argument of `configure`:
 
 ```js
 nunjucks.configure('views', { autoescape: true });
 nunjucks.render('index.html', { foo: 'bar' });
 ```
 
-That way you can inherit and include templates.
-
-The above API works in node and in the browser. In node, nunjucks
-loads templates from the filesystem by default, and in the browser
-loads them over HTTP. If you are using the slim version of nunjucks
-and precompiled your templates, they will automatically be picked up
-by the system and you don't have to do anything different. This makes
-it easy to use the same code in development and production, while only
-using precompiled templates in production.
-
-
-## All of the below should go into the real docs
-
-
-### Async
-
-Nunjucks supports an async API, which is only necessary if you are using any asynchronous filters or extensions:
+Using express? Simply pass your express app into `configure`:
 
 ```js
-nunjucks.render('index.html', { foo: 'bar' }, function(err, res) {
-    // handle err or use the result
+var app = express();
+
+nunjucks.configure('views', {
+    autoescape: true,
+    express: app
+});
+
+app.get('/', function(req, res) {
+    res.render('index.html');
 });
 ```
 
-Otherwise, all render calls can be used synchronously just as well.
-There is no advantage to the async API by default since template
-loading is either cached or precompiled. It's only necessary if your
-filters or extensions do anything async.
+The above API works in node and in the browser (express is only in
+node, obviously). In node, nunjucks loads templates from the
+filesystem by default, and in the browser loads them over HTTP.
 
-### More APIs
+If you are using the slim version of nunjucks and precompiled your
+templates in the browser, they will automatically be picked up by the
+system and you don't have to do anything different. This makes it easy
+to use the same code in development and production, while only using
+precompiled templates in production.
 
-That's only the tip of the iceberg. The above higher-level API uses this more powerful API.
+## More Information
+
+That's only the tip of the iceberg. See [API](/api.html) for API docs
+and [Templating](/templating.html) about the templating language.
