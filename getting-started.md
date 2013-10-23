@@ -15,10 +15,23 @@ Once installed, simply use `require('nunjucks')` to load it.
 
 ## When in the Browser...
 
-Grab <a href="#">nunjucks-dev.js</a> for the full library, and <a
-href="#">nunjucks.js</a> (<a href="#">minified</a>) for the slim
-version. The slim version is only 8K minified and gzipped and only
-works with precompiled templates.
+Grab [nunjucks.js]() ([min]()) for the full library, or
+[nunjucks-slim.js]() ([min]()) for the slim version
+which only works with precompiled templates.
+
+### Which file should you use?
+
+* Use **nunjucks.js** to dynamically load templates, auto-reload
+  templates when they are changed, and use precompiled templates.
+  Comes with the full compiler so is larger (20K min/gzipped). Use
+  this to get started, and use in production if you don't mind a
+  larger file size.
+
+* Use **nunjucks-slim.js** to load precompiled templates and use them. Only
+  comes with runtime so is smaller (8K min/gzipped), but *only* works with
+  precompiled templates. Typically used for production, and possibly
+  development if you use something like a [grunt task]() to
+  automatically recompile templates.
 
 Simply include nunjucks with a `script` tag on the page:
 
@@ -32,6 +45,10 @@ or load it as an AMD module:
 define(['nunjucks'], function(nunjucks) {
 });
 ```
+
+> Whatever you do, make sure to precompile your templates in
+> production! Read more about optimal client-side configurations in
+> [Browser Usage](api.html#browser-usage).
 
 ## Using
 
@@ -52,6 +69,10 @@ where these files live with the first argument of `configure`:
 nunjucks.configure('views', { autoescape: true });
 nunjucks.render('index.html', { foo: 'bar' });
 ```
+
+In node, `'views'` would be a path relative to the current working
+directory. In the browser, it would be a relative URL, and you
+probably want it to be absolute, like `'/views'`.
 
 Using express? Simply pass your express app into `configure`:
 

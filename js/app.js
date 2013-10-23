@@ -22,7 +22,7 @@ $(function() {
     var last;
     var tris;
     var running = false;
-    var MAX_SUBDIVIDE = 7;
+    var MAX_SUBDIVIDE = 4;
     var EPSILON = 5;
 
     // generate a random color scheme for the page
@@ -123,7 +123,7 @@ $(function() {
         this.v2 = v2;
         this.v3 = v3;
         this.point = v2;
-        this.color = color || [30, (Math.random() * 60 + 50) | 0, 20];
+        this.color = color || [30, (Math.random() * 20 + 40) | 0, 20];
         this.children = [];
         this.level = level || 0;
         this.sparks = [];

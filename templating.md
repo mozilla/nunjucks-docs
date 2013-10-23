@@ -6,19 +6,26 @@ title: Templates
 
 # Templating
 
-This is a basic overview of the features available in nunjucks. You should refer to [jinja's
-documentation](http://jinja.pocoo.org/docs/templates/) for more in-depth documentation, but keep in mind [how nunjucks is different from
-jinja2](/differences).
+This is an overview of the templating features available in nunjucks.
+
+> Nunjucks is essentially a port of
+> [jinja2](http://jinja.pocoo.org/docs/), so you can read their
+> [docs](http://jinja.pocoo.org/docs/templates/) if you find anything
+> lacking here. Read about the differences
+> [here](http://localhost:4000/faq.html#can-i-use-the-same-templates-between-nunjucks-and-jinja2-what-are-the-differences).
 
 ## Variables
 
-A variable looks up a value from the template context. If you wanted to simply display a variable, you would do:
+A variable looks up a value from the template context. If you wanted
+to simply display a variable, you would do:
 
 ```jinja
 {{ username }}
 ```
 
-This looks up `username` from the context and displays it. Variable names can have dots in them which lookup properties, just like javascript. You can also use the square bracket syntax.
+This looks up `username` from the context and displays it. Variable
+names can have dots in them which lookup properties, just like
+javascript. You can also use the square bracket syntax.
 
 ```jinja
 {{ foo.bar }}
@@ -27,11 +34,15 @@ This looks up `username` from the context and displays it. Variable names can ha
 
 These two forms to the exact same thing, just like javascript.
 
-If a value is `undefined` or `null`, nothing is displayed. The same behavior occurs when referencing undefined or null objects. The following all output nothing if `foo` is undefined: `{{ foo }}`, `{{ foo.bar }}`, `{{ foo.bar.baz }}`.
+If a value is `undefined` or `null`, nothing is displayed. The same
+behavior occurs when referencing undefined or null objects. The
+following all output nothing if `foo` is undefined: `{{ foo }}`, `{{
+foo.bar }}`, `{{ foo.bar.baz }}`.
 
 ## Filters
 
-Filters are essentially functions that can be applied to variables. They are called with a pipe operator (`|`) and can take arguments.
+Filters are essentially functions that can be applied to variables.
+They are called with a pipe operator (`|`) and can take arguments.
 
 ```jinja
 {{ foo | title }}
@@ -39,21 +50,28 @@ Filters are essentially functions that can be applied to variables. They are cal
 {{ foo | replace("foo", "bar") | capitalize }}
 ```
 
-The third example shows how you can chain filters. It would display "Bar", by first replacing "foo" with "bar" and then capitalizing it.
+The third example shows how you can chain filters. It would display
+"Bar", by first replacing "foo" with "bar" and then capitalizing it.
 
-Nunjucks comes with several [builtin filters](/templating#Builtin-Filters), and you can [add your own](/api#Registering-custom-filters) as well.
+Nunjucks comes with several
+[builtin filters](/templating#Builtin-Filters), and you can
+[add your own](/api#Registering-custom-filters) as well.
 
 ## Template Inheritance
 
-Template inheritance should work exactly like it does in jinja2. [jinja has great documentation on inheritance](http://jinja.pocoo.org/docs/templates/#template-inheritance) that you can read.
+Template inheritance should work exactly like it does in jinja2.
+[jinja has great documentation on inheritance](http://jinja.pocoo.org/docs/templates/#template-inheritance)
+that you can read.
 
 ## Tags
 
-Tags are special blocks that perform operations on sections of the template. Nunjucks comes with several builtin.
+Tags are special blocks that perform operations on sections of the
+template. Nunjucks comes with several builtin.
 
-Just like filters, you will be able to add your own (this functionality is not available yet).
+Just like filters, you will be able to add your own (this
+functionality is not available yet).
 
-### For
+### for
 
 `for` iterates over arrays and dictionaries.
 
@@ -114,7 +132,15 @@ Inside loops, you have access to a few special variables:
 
 `loop.revindex*`, `loop.last`, and `loop.length` are currently unavailable when iterating over dictionaries.
 
-### If
+### asyncEach
+
+You only need this if you use async stuff. 
+
+### asyncAll
+
+parallel async version
+
+### if
 
 `if` tests a condition and lets you selectively display content. It behaves exactly as javascript's `if` behaves.
 
@@ -140,7 +166,7 @@ You can specify alternate conditions with `elif` and `else`:
 
 You can also use if as an [inline expression](/templating#If-Expression).
 
-### Macro
+### macro
 
 `macro` allows you to define reusable chunks of content. It is similar to a function in a programming language. Here's an example:
 
@@ -163,7 +189,7 @@ Keyword/default arguments are available. See [keyword arguments](/templating#Key
 
 You can [import](/templating#Import) macros from other templates, allowing you to reuse them freely across your project.
 
-### Set
+### set
 
 `set` lets you create/modify a variable.
 
@@ -183,7 +209,7 @@ You can introduce new variables, and also set multiple at once:
 
 If `set` is used at the top-level, it changes the value of the global template context. If used inside scoped blocks, like `for`, `include`, and others, it only modifies the current scope.
 
-### Extends
+### extends
 
 `extends` is used to specify template inheritance. The specified template is used as a base template.
 
@@ -193,7 +219,7 @@ If `set` is used at the top-level, it changes the value of the global template c
 
 See [jinja's documentation on template inheritance](http://jinja.pocoo.org/docs/templates/#template-inheritance) for more information.
 
-### Block
+### block
 
 `block` defines a section on the template and identifies it with a name. This is used by template inheritance. Base templates can specify blocks and child templates can override them with new content.
 
@@ -215,7 +241,7 @@ Child templates can override the `item` block and change how it is displayed.
 
 See [jinja's documentation on template inheritance](http://jinja.pocoo.org/docs/templates/#template-inheritance) for more information.
 
-### Include
+### include
 
 `include` pulls in other templates in place. It's useful when you need to share smaller chunks across several templates that already inherit other templates.
 
@@ -233,7 +259,7 @@ You can even include templates in the middle of loops:
 
 This is especially useful for cutting up templates into pieces so that the browser-side environment can render the small chunks when it needs to change the page.
 
-### Import
+### import
 
 `import` loads a different template and allows you to access its exported values. Macros and top-level assignments (done with [`set`](#set)) are exported from templates, allowing you to access them in a different template.
 
@@ -278,7 +304,7 @@ You can also import specific values from a template into the current namespace w
 {{ input('pass', type='password') }}
 ```
 
-### Raw
+### raw
 
 If you want to output any of the special nunjucks tags like `{{`, you can use `raw` and anything inside of it will be output as plain text.
 
