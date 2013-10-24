@@ -17,10 +17,12 @@ module Jekyll
 
         if names.has_key?(slug)
           i = 1
-          while !names.has_key?(slug)
+          newSlug = slug + i.to_s
+          while names.has_key?(newSlug)
             i = i + 1
+            newSlug = slug + i.to_s
           end
-          slug = slug + i.to_s
+          slug = newSlug
         end
 
         names[slug] = true

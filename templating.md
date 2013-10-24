@@ -59,21 +59,98 @@ Nunjucks comes with several
 
 ## Template Inheritance
 
-Template inheritance should work exactly like it does in jinja2.
-[jinja has great documentation on inheritance](http://jinja.pocoo.org/docs/templates/#template-inheritance)
-that you can read.
+Template inheritance is a way to make it easy to reuse templates. When
+writing a template, you can define "blocks" that child templates can
+override. The inheritance chain can be as long as you like.
+
+If we have a template `parent.html` that looks like this:
+
+```jinja
+{% block header %}
+This is the default content
+{% endblock %}
+
+<section class="left">
+  {% block left %}{% endblock %}
+</section>
+
+<section class="right">
+  {% block right %}
+  This is more content
+  {% endblock %}
+</section>
+```
+
+And we render this template:
+
+```jinja
+{% extends "parent.html" %}
+
+{% block left %}
+This is the left side!
+{% endblock %}
+
+{% block right %}
+This is the right side!
+{% endblock %}
+```
+
+The output would be:
+
+```jinja
+This is the default content
+
+<section class="left">
+  This is the left side!
+</section>
+
+<section class="right">
+  This is the right side!
+</section>  
+```
+
+You leverage inheritance with the [`extends`](#extends) and
+[`block`](#block) tags. A more detailed explanation of inheritance can
+be found in the [jinja2
+docs](http://jinja.pocoo.org/docs/templates/#template-inheritance).
 
 ## Tags
 
 Tags are special blocks that perform operations on sections of the
-template. Nunjucks comes with several builtin.
+template. Nunjucks comes with several builtin, but [you can add your own](api.html#custom-tags).
 
-Just like filters, you will be able to add your own (this
-functionality is not available yet).
+### if
+
+`if` tests a condition and lets you selectively display content. It behaves exactly as javascript's `if` behaves.
+
+```jinja
+{% if variable %}
+  It is true
+{% endif %}
+```
+
+If variable is defined and evaluates to true, "It is true" will be displayed. Otherwise, nothing will be.
+
+You can specify alternate conditions with `elif` and `else`:
+
+```jinja
+{% if hungry %}
+  I am hungry
+{% elif tired %}
+  I am tired
+{% else %}
+  I am good!
+{% endif %}
+```
+
+You can also use if as an [inline expression](#if-expression).
 
 ### for
 
 `for` iterates over arrays and dictionaries.
+
+> If you are using a custom template loader that is asynchronous, see
+> [`asyncEach`](#asynceach))
 
 ```js
 var items = [{ title: "foo", id: 1 }, { title: "bar", id: 2}];
@@ -130,41 +207,70 @@ Inside loops, you have access to a few special variables:
 * `loop.last`: boolean indicating the last iteration
 * `loop.length`: total number of items
 
-`loop.revindex*`, `loop.last`, and `loop.length` are currently unavailable when iterating over dictionaries.
-
 ### asyncEach
 
-You only need this if you use async stuff. 
+> This is only applicable to asynchronous templates. Read about
+> them [here](/api.html#asynchronous-support)
+
+`asyncEach` is an asynchronous version of `for`. You only need this if
+you are using a [custom template loader that is
+asynchronous](#asynchronous); otherwise you will never need it. Async
+filters and extensions also need this, but internally loops are
+automatically converted into `asyncEach` if any async filters and
+extensions are used within the loop.
+
+`asyncEach` has exactly the same behavior of `for`, but it enables
+asynchronous control of the loop. The reason those tags are separate
+is performance; most people use templates synchronously and it's
+much faster for `for` to compile to a straight JavaScript `for` loop.
+
+At compile-time, nunjucks is not aware how templates are loaded so
+it's unable to determine if an `include` block is asynchronous or not.
+That's why it can't automatically convert loops for you, and you must
+use `asyncEach` for iteration if you are loading templates
+asynchronously inside the loop.
+
+```js
+// If you are using a custom loader that is async, you need asyncEach
+var env = new nunjucks.Environment(AsyncLoaderFromDatabase, opts);
+```
+```jinja
+<h1>Posts</h1>
+<ul>
+{% asyncEach item in items %}
+  {% include "item-template.html" %}
+{% endeach %}
+</ul>
+```
 
 ### asyncAll
 
-parallel async version
+> This is only applicable to asynchronous templates. Read about
+> them [here](/api.html#asynchronous-support)
 
-### if
+`asyncAll` is similar to `asyncEach`, except it renders all the items
+in parallel, preserving the order of the items. This is only helpful
+if you are using asynchronous filters, extensions, or loaders.
+Otherwise you should never use this.
 
-`if` tests a condition and lets you selectively display content. It behaves exactly as javascript's `if` behaves.
-
-```jinja
-{% if variable %}
-  It is true
-{% endif %}
-```
-
-If variable is defined and evaluates to true, "It is true" will be displayed. Otherwise, nothing will be.
-
-You can specify alternate conditions with `elif` and `else`:
+Let's say you created a filter named `lookup` that fetches some text
+from a database. You could then render multiple items in parallel with
+`asyncAll`:
 
 ```jinja
-{% if hungry %}
-  I am hungry
-{% elif tired %}
-  I am tired
-{% else %}
-  I am good!
-{% endif %}
+<h1>Posts</h1>
+<ul>
+{% asyncAll item in items %}
+  <li>{{ item.id | lookup }}</li>
+{% endall %}
+</ul>
 ```
 
-You can also use if as an [inline expression](/templating#If-Expression).
+If `lookup` is an asynchronous filter, it's probably doing something
+slow like fetching something from disk. `asyncAll` allows you reduce
+the time it would take to execute the loop sequentially by doing all
+the async work in parallel, and the template rendering resumes once
+all the items are done.
 
 ### macro
 
@@ -211,17 +317,28 @@ If `set` is used at the top-level, it changes the value of the global template c
 
 ### extends
 
-`extends` is used to specify template inheritance. The specified template is used as a base template.
+`extends` is used to specify template inheritance. The specified
+template is used as a base template. See [Template
+Inheritance](#template-inheritance).
 
 ```jinja
 {% extends "base.html" %}
 ```
 
-See [jinja's documentation on template inheritance](http://jinja.pocoo.org/docs/templates/#template-inheritance) for more information.
+You can use a variable too by emitting quotes. That way you can
+dynamically change which template is inherited when rendering by
+setting it in the context.
+
+```jinja
+{% extends parentTemplate %}
+```
 
 ### block
 
-`block` defines a section on the template and identifies it with a name. This is used by template inheritance. Base templates can specify blocks and child templates can override them with new content.
+`block` defines a section on the template and identifies it with a
+name. This is used by template inheritance. Base templates can specify
+blocks and child templates can override them with new content. See
+[Template Inheritance](#template-inheritance).
 
 ```jinja
 {% block css %}
@@ -237,9 +354,15 @@ You can even define blocks within looping:
 {% endfor %}
 ```
 
-Child templates can override the `item` block and change how it is displayed.
+Child templates can override the `item` block and change how it is displayed:
 
-See [jinja's documentation on template inheritance](http://jinja.pocoo.org/docs/templates/#template-inheritance) for more information.
+```jinja
+{% extends "item.html" %}
+
+{% block item %}
+The name of the item is: {{ item.name }}
+{% endblock %}
+```
 
 ### include
 
@@ -527,18 +650,42 @@ If `tags` was `["food", "beer", "dessert"]`, the above example would output `foo
 
 ## Builtin Filters
 
-Nunjucks has ported most of jinja's filters, so [go look in its docs](http://jinja.pocoo.org/docs/templates/#list-of-builtin-filters) for filters.
+Nunjucks has ported most of jinja's filters (click through for documentation):
 
-These filters are currently **not** implemented:
+* [abs](http://jinja.pocoo.org/docs/templates/#abs)
+* [batch](http://jinja.pocoo.org/docs/templates/#batch)
+* [capitalize](http://jinja.pocoo.org/docs/templates/#capitalize)
+* [center](http://jinja.pocoo.org/docs/templates/#center)
+* [default](http://jinja.pocoo.org/docs/templates/#default) (aliased as `d`)
+* [dictsort](http://jinja.pocoo.org/docs/templates/#dictsort)
+* [escape](http://jinja.pocoo.org/docs/templates/#escape) (aliased as `e`)
+* [safe](http://jinja.pocoo.org/docs/templates/#safe)
+* [first](http://jinja.pocoo.org/docs/templates/#first)
+* [groupby](http://jinja.pocoo.org/docs/templates/#groupby)
+* [indent](http://jinja.pocoo.org/docs/templates/#indent)
+* [join](http://jinja.pocoo.org/docs/templates/#join)
+* [last](http://jinja.pocoo.org/docs/templates/#last)
+* [length](http://jinja.pocoo.org/docs/templates/#length)
+* [list](http://jinja.pocoo.org/docs/templates/#list)
+* [lower](http://jinja.pocoo.org/docs/templates/#lower)
+* [random](http://jinja.pocoo.org/docs/templates/#random)
+* [replace](http://jinja.pocoo.org/docs/templates/#replace)
+* [reverse](http://jinja.pocoo.org/docs/templates/#reverse)
+* [round](http://jinja.pocoo.org/docs/templates/#round)
+* [slice](http://jinja.pocoo.org/docs/templates/#slice)
+* [sort](http://jinja.pocoo.org/docs/templates/#sort)
+* [string](http://jinja.pocoo.org/docs/templates/#string)
+* [title](http://jinja.pocoo.org/docs/templates/#title)
+* [trim](http://jinja.pocoo.org/docs/templates/#trim)
+* [truncate](http://jinja.pocoo.org/docs/templates/#truncate)
+* [upper](http://jinja.pocoo.org/docs/templates/#upper)
+* [urlencode](http://jinja.pocoo.org/docs/templates/#urlencode)
+* [wordcount](http://jinja.pocoo.org/docs/templates/#wordcount)
+* [float](http://jinja.pocoo.org/docs/templates/#float)
+* [int](http://jinja.pocoo.org/docs/templates/#int)
 
-* `filesizeformat`
-* `forceescape`
-* `format`
-* `pprint`
-* `striptags`
-* `sum`
-* `urlize`
-* `wordwrap`
-* `xmlattr`
+Alternatively, it's easy to [read the JavaScript
+code](https://github.com/jlongster/nunjucks/blob/master/src/filters.js)
+that implements these filters.
 
 {% endraw %}

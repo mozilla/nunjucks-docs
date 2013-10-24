@@ -15,8 +15,8 @@ Once installed, simply use `require('nunjucks')` to load it.
 
 ## When in the Browser...
 
-Grab [nunjucks.js]() ([min]()) for the full library, or
-[nunjucks-slim.js]() ([min]()) for the slim version
+Grab [nunjucks.js](files/nunjucks.js) ([min](files/nunjucks.min.js)) for the full library, or
+[nunjucks-slim.js](files/nunjucks-slim.js) ([min](files/nunjucks-slim.min.js)) for the slim version
 which only works with precompiled templates.
 
 ### Which file should you use?
@@ -30,7 +30,7 @@ which only works with precompiled templates.
 * Use **nunjucks-slim.js** to load precompiled templates and use them. Only
   comes with runtime so is smaller (8K min/gzipped), but *only* works with
   precompiled templates. Typically used for production, and possibly
-  development if you use something like a [grunt task]() to
+  development if you use the [grunt task](https://github.com/jlongster/grunt-nunjucks) to
   automatically recompile templates.
 
 Simply include nunjucks with a `script` tag on the page:
@@ -93,11 +93,11 @@ The above API works in node and in the browser (express is only in
 node, obviously). In node, nunjucks loads templates from the
 filesystem by default, and in the browser loads them over HTTP.
 
-If you are using the slim version of nunjucks and precompiled your
-templates in the browser, they will automatically be picked up by the
-system and you don't have to do anything different. This makes it easy
-to use the same code in development and production, while only using
-precompiled templates in production.
+If you [precompiled](api.html#precompiling) your templates in the browser, they will
+automatically be picked up by the system and you don't have to do
+anything different. This makes it easy to use the same code in
+development and production, while only using precompiled templates in
+production.
 
 ## More Information
 

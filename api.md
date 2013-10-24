@@ -446,7 +446,7 @@ This method will give you a setup that dynamically loads templates
 while developing (you can see changes immediately), but uses
 precompiled templates in production.
 
-1. Load [nunjucks.js]() with either a script tag or a module loader.
+1. Load [nunjucks.js](files/nunjucks.js) with either a script tag or a module loader.
 2. Render templates ([example](/api.html#simple-api))!
 3. When pushing to production, [precompile](#precompiling) the templates into a js file
    and load it on the page
@@ -465,10 +465,10 @@ production, which simplifies the setup. However, you're going to want
 something that automatically recompiles templates while developing
 unless you want to manually recompile them after every change.
 
-1. For development, set up something like a [grunt task]() to watch
+1. For development, use the [grunt task](https://github.com/jlongster/grunt-nunjucks) to watch
 your template directory for changes and automatically [precompile](#precompiling) them
 into a js file
-2. Load [nunjucks-slim.js]() and `templates.js`, or whatever you named
+2. Load [nunjucks-slim.js](files/nunjucks-slim.js) and `templates.js`, or whatever you named
 the precompiled js file, with either a script tag or a module loader.
 3. Render templates ([example](/api.html#simple-api))!
 
@@ -587,8 +587,8 @@ nunjucks.render('foo.html', function(err, res) {
 });
 ```
 
-Read more about async [`filters`](), [`extensions`](), and
-[`loaders`](#loader) under each section.
+Read more about async [`filters`](#asynchronous1), [`extensions`](#asynchronous2), and
+[`loaders`](#asynchronous).
 
 ### Be Careful!
 
@@ -725,11 +725,21 @@ env.render('{{ item|lookup }}', function(err, res) {
 
 Make sure to call the callback with two arguments: `callback(err, res)`. `err` can be null, of course.
 
+Note: When precompiling, **you must tell the precompiler the names of
+all asynchronous filters**. See
+[Precompiling](/api.html#precompiling).
+
 ## Custom Tags
 
 You can create more complicated extensions by creating custom tags.
 This exposes the parser API and allows you to do anything you want
 with the template.
+
+Note: When precompiling, **you must install the extensions at
+compile-time**. You have to use the [precompiling API](#api1) (or the
+[grunt task](https://github.com/jlongster/grunt-nunjucks)) instead of
+the script. You'll want to create a [`Environment`](#environment)
+object, install your extensions, and pass it to the precompiler.
 
 An extension is a javascript object with at least two fields: `tags`
 and `parse`. Extensions basically register new tag names and take
