@@ -103,5 +103,5 @@ production.
 
 ## More Information
 
-That's only the tip of the iceberg. See [API](/api.html) for API docs
-and [Templating](/templating.html) about the templating language.
+That's only the tip of the iceberg. See [API](api.html) for API docs
+and [Templating](templating.html) about the templating language.

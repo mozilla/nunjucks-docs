@@ -54,8 +54,8 @@ The third example shows how you can chain filters. It would display
 "Bar", by first replacing "foo" with "bar" and then capitalizing it.
 
 Nunjucks comes with several
-[builtin filters](/templating#Builtin-Filters), and you can
-[add your own](/api#Registering-custom-filters) as well.
+[builtin filters](#builtin-filters), and you can
+[add your own](api#Registering-custom-filters) as well.
 
 ## Template Inheritance
 
@@ -210,7 +210,7 @@ Inside loops, you have access to a few special variables:
 ### asyncEach
 
 > This is only applicable to asynchronous templates. Read about
-> them [here](/api.html#asynchronous-support)
+> them [here](api.html#asynchronous-support)
 
 `asyncEach` is an asynchronous version of `for`. You only need this if
 you are using a [custom template loader that is
@@ -246,7 +246,7 @@ var env = new nunjucks.Environment(AsyncLoaderFromDatabase, opts);
 ### asyncAll
 
 > This is only applicable to asynchronous templates. Read about
-> them [here](/api.html#asynchronous-support)
+> them [here](api.html#asynchronous-support)
 
 `asyncAll` is similar to `asyncEach`, except it renders all the items
 in parallel, preserving the order of the items. This is only helpful
@@ -291,9 +291,9 @@ Now `field` is available to be called like a normal function:
 {{ field('pass', type='password') }}
 ```
 
-Keyword/default arguments are available. See [keyword arguments](/templating#Keyword-Arguments) for a more detailed explanation.
+Keyword/default arguments are available. See [keyword arguments](#keyword-arguments) for a more detailed explanation.
 
-You can [import](/templating#Import) macros from other templates, allowing you to reuse them freely across your project.
+You can [import](#import) macros from other templates, allowing you to reuse them freely across your project.
 
 ### set
 
@@ -451,7 +451,7 @@ Keyword arguments look like this:
 foo(1, 2, { bar: 3, baz: 4})
 ```
 
-Since this is a standard calling convention, it works for all functions and filters if they are written to expect them. [Read more](/api#Keyword-Arguments) about this in the API section.
+Since this is a standard calling convention, it works for all functions and filters if they are written to expect them. [Read more](api#Keyword-Arguments) about this in the API section.
 
 Macros allow you to also use keyword arguments in the definition, which allows you to specify default values. Nunjucks automatically maps the keyword arguments to the ones defined with the macro.
 

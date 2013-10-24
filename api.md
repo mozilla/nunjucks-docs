@@ -434,7 +434,7 @@ default.
 These are two of the most popular ways to set up nunjucks on the
 client-side. Note that there are two different js files: one with the
 compiler, nunjucks.js, and one without the compiler, nunjucks-slim.js.
-Read [Getting Started](/getting-started.html) for a brief overview of
+Read [Getting Started](getting-started.html) for a brief overview of
 the differences.
 
 See [Precompiling](#precompiling) for information on precompiling
@@ -447,7 +447,7 @@ while developing (you can see changes immediately), but uses
 precompiled templates in production.
 
 1. Load [nunjucks.js](files/nunjucks.js) with either a script tag or a module loader.
-2. Render templates ([example](/api.html#simple-api))!
+2. Render templates ([example](#simple-api))!
 3. When pushing to production, [precompile](#precompiling) the templates into a js file
    and load it on the page
 
@@ -470,7 +470,7 @@ your template directory for changes and automatically [precompile](#precompiling
 into a js file
 2. Load [nunjucks-slim.js](files/nunjucks-slim.js) and `templates.js`, or whatever you named
 the precompiled js file, with either a script tag or a module loader.
-3. Render templates ([example](/api.html#simple-api))!
+3. Render templates ([example](#simple-api))!
 
 With this method, there are no differences between development and
 production code. Simply commit the templates.js file and deploy the
@@ -681,7 +681,7 @@ A message for you: {{ message|shorten(20) }}
 ### Keyword/Default Arguments
 
 As described in the
-[templating section](/templating#Keyword-Arguments), nunjucks supports
+[templating section](templating#Keyword-Arguments), nunjucks supports
 keyword/default arguments. You can write a normal javascript filter
 that leverages them.
 
@@ -727,7 +727,7 @@ Make sure to call the callback with two arguments: `callback(err, res)`. `err` c
 
 Note: When precompiling, **you must tell the precompiler the names of
 all asynchronous filters**. See
-[Precompiling](/api.html#precompiling).
+[Precompiling](#precompiling).
 
 ## Custom Tags
 
