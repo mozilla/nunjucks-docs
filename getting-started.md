@@ -47,8 +47,10 @@ define(['nunjucks'], function(nunjucks) {
 ```
 
 > Whatever you do, make sure to precompile your templates in
-> production! Read more about optimal client-side configurations in
-> [Browser Usage](api.html#browser-usage).
+> production! There is a [grunt
+> task](https://github.com/jlongster/grunt-nunjucks) to help with
+> that. Read more about optimal client-side configurations in [Browser
+> Usage](api.html#browser-usage).
 
 ## Using
 
