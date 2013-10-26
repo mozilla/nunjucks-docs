@@ -183,8 +183,8 @@ env.addFilter(name, func, [async])
 
 Add a custom filter named **name** which calls **func** whenever
 invoked. If the filter needs to be async, **async** must be `true`
-(see [asynchronous support](#asynchronous-support)). See <a
-href="/api.html#custom-filters">Custom Filters</a>.
+(see [asynchronous support](#asynchronous-support)). See 
+[Custom Filters](#custom-filters).
 
 {% endapi %}
 
