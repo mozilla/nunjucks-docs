@@ -109,6 +109,14 @@ This is the default content
 </section>  
 ```
 
+You can store the template to inherit in a variable and use it by
+emitting quotes. That way you can dynamically change which template is
+inherited when rendering by setting it in the context.
+
+```jinja
+{% extends parentTemplate %}
+```
+
 You leverage inheritance with the [`extends`](#extends) and
 [`block`](#block) tags. A more detailed explanation of inheritance can
 be found in the [jinja2
@@ -325,9 +333,9 @@ Inheritance](#template-inheritance).
 {% extends "base.html" %}
 ```
 
-You can use a variable too by emitting quotes. That way you can
-dynamically change which template is inherited when rendering by
-setting it in the context.
+You can store the template to inherit in a variable and use it by
+emitting quotes. That way you can dynamically change which template is
+inherited when rendering by setting it in the context.
 
 ```jinja
 {% extends parentTemplate %}
