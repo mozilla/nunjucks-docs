@@ -35,7 +35,7 @@ Additionally, there are few jinja2 features not implemented in nunjucks:
 * `for` does not support `if not` and `else`
 * `with context` modifiers don't exist
 * `if i is divisibleby(3)`-style conditionals
-* Names block end tags: `{% endblock content %}`
+* Named block end tags: `{% endblock content %}`
 * Sandboxed mode
 * Line statements: `# for item in seq`
 
