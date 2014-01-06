@@ -12,7 +12,7 @@ This is an overview of the templating features available in nunjucks.
 > [jinja2](http://jinja.pocoo.org/docs/), so you can read their
 > [docs](http://jinja.pocoo.org/docs/templates/) if you find anything
 > lacking here. Read about the differences
-> [here](http://localhost:4000/faq.html#can-i-use-the-same-templates-between-nunjucks-and-jinja2-what-are-the-differences).
+> [here](http://jlongster.github.io/nunjucks/faq.html#can-i-use-the-same-templates-between-nunjucks-and-jinja2-what-are-the-differences).
 
 ## Variables
 
