@@ -3,4 +3,4 @@ markdown: redcarpet
 redcarpet:
     extensions: [with_toc_data]
 
-baseurl: /
+baseurl: /poop/
