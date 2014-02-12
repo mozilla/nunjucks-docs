@@ -50,6 +50,20 @@ var res = nunjucks.renderString('Hello {{ username }}', { username: 'James' });
 {% endapi %}
 
 {% api %}
+compile
+nunjucks.compile(str, [env], [path])
+
+Compile the given string into a reusable nunjucks Template object.
+
+{% raw %}
+```js
+var template = nunjucks.compile('Hello {{ username }}');
+template.render({ username: 'James' });
+```
+{% endraw %}
+{% endapi %}
+
+{% api %}
 configure
 nunjucks.configure([path], [opts]);
 
