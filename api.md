@@ -718,7 +718,7 @@ env.addFilter('lookup', function(name, callback) {
     db.getItem(name, callback);
 }, true);
 
-env.render('{{ item|lookup }}', function(err, res) {
+env.renderString('{{ item|lookup }}', function(err, res) {
     // do something with res
 });
 ```
