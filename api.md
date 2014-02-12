@@ -689,7 +689,7 @@ All keyword arguments are passed in as a hash as the last argument.
 This is a filter `foo` that uses keyword arguments:
 
 ```js
-env.registerFilter('foo', function(num, x, y, kwargs) {
+env.addFilter('foo', function(num, x, y, kwargs) {
    return num + (kwargs.bar || 10);
 })
 ```
@@ -718,7 +718,7 @@ env.addFilter('lookup', function(name, callback) {
     db.getItem(name, callback);
 }, true);
 
-env.render('{{ item|lookup }}', function(err, res) {
+env.renderString('{{ item|lookup }}', function(err, res) {
     // do something with res
 });
 ```
