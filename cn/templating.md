@@ -8,7 +8,7 @@ title: Templates
 
 这里包括 nunjuck 所有可用的功能。
 
-> Nunjucks 是 [jinja2](http://jinja.pocoo.org/docs/) 的 javascript 的实现，所以如果此文档有什么缺失，你可以直接查看 [jinja2 的文档](http://jinja.pocoo.org/docs/templates/)，不过两者之间还存在一些[差异](http://jlongster.github.io/nunjucks/faq.html#can-i-use-the-same-templates-between-nunjucks-and-jinja2-what-are-the-differences)。
+> Nunjucks 是 [jinja2](http://jinja.pocoo.org/docs/) 的 javascript 的实现，所以如果此文档有什么缺失，你可以直接查看 [jinja2 的文档](http://jinja.pocoo.org/docs/templates/)，不过两者之间还存在一些[差异](http://mozilla.github.io/nunjucks/faq.html#can-i-use-the-same-templates-between-nunjucks-and-jinja2-what-are-the-differences)。
 
 ## 变量
 
@@ -636,6 +636,6 @@ Nunjucks 已经支持了大部分 jinja 的过滤器 (点击查看文档)。
 * [float](http://jinja.pocoo.org/docs/templates/#float)
 * [int](http://jinja.pocoo.org/docs/templates/#int)
 
-你也可以直接[看代码](https://github.com/jlongster/nunjucks/blob/master/src/filters.js)。
+你也可以直接[看代码](https://github.com/mozilla/nunjucks/blob/master/src/filters.js)。
 
 {% endraw %}

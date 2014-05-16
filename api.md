@@ -784,7 +784,7 @@ you'll want to use:
 
 The parser API needs to be more documented, but for now read the above
 and check out the example below. You can also look at the
-[source](https://github.com/jlongster/nunjucks/blob/master/src/parser.js).
+[source](https://github.com/mozilla/nunjucks/blob/master/src/parser.js).
 
 The most common usage is to process the content within some tags at
 runtime. It's like filters, but on steroids because you aren't
@@ -878,6 +878,6 @@ this.run = function(context, url, body, errorBody, callback) {
 ```
 
 If you create anything interesting, make sure to
-[add it to the wiki!](https://github.com/jlongster/nunjucks/wiki/Custom-Tags)
+[add it to the wiki!](https://github.com/mozilla/nunjucks/wiki/Custom-Tags)
 
 {% endraw %}

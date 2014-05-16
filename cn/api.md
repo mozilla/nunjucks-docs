@@ -572,7 +572,7 @@ env.render('{{ item|lookup }}', function(err, res) {
 
 * `parseUntilBlocks(names)` - 解析内容直到下一个名为 `names` 的标签，非常有用解析标签之间的内容。
 
-parser API 还需要更多的文档，但现在对照上面的文档和下面的例子，你还可以看下[源码](https://github.com/jlongster/nunjucks/blob/master/src/parser.js)。
+parser API 还需要更多的文档，但现在对照上面的文档和下面的例子，你还可以看下[源码](https://github.com/mozilla/nunjucks/blob/master/src/parser.js)。
 
 最常用使用的是在运行时解析标签间的内容，就像过滤器一样，但是更灵活，因为不只是局限在一个表达式中。通常情况下你会解析模板，然后将内容传入回调。你可以使用 `CallExtension`，需要传扩展的实例，方法名，解析的参数和内容（使用 `parseUntilBlocks` 解析的）。
 
@@ -655,6 +655,6 @@ this.run = function(context, url, body, errorBody, callback) {
 ```
 
 If you create anything interesting, make sure to
-[add it to the wiki!](https://github.com/jlongster/nunjucks/wiki/Custom-Tags)
+[add it to the wiki!](https://github.com/mozilla/nunjucks/wiki/Custom-Tags)
 
 {% endraw %}
