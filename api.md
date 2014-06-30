@@ -367,6 +367,10 @@ function MyLoader(opts) {
 
 MyLoader.prototype.getSource = function(name) {
     // load the template
+    // return an object with
+    //   - src:     the template source
+    //   - path:    path to template
+    //   - noCache: (optional)
 }
 ```
 
