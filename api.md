@@ -368,9 +368,9 @@ function MyLoader(opts) {
 MyLoader.prototype.getSource = function(name) {
     // load the template
     // return an object with:
-    //   - src:     the template source
-    //   - path:    path to template
-    //   - noCache: don't cache the template (optional)
+    //   - src:     String. The template source.
+    //   - path:    String. Path to template.
+    //   - noCache: Bool. Don't cache the template (optional).
 }
 ```
 
