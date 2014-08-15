@@ -1,4 +1,4 @@
-// Browser bundle of nunjucks 1.0.4 
+// Browser bundle of nunjucks 1.0.7 
 
 (function() {
 var modules = {};
@@ -43,7 +43,7 @@ function extend(cls, name, props) {
 
     prototype.typename = name;
 
-    var new_cls = function() { 
+    var new_cls = function() {
         if(prototype.init) {
             prototype.init.apply(this, arguments);
         }
@@ -258,7 +258,7 @@ exports.map = function(obj, func) {
 
 exports.asyncIter = function(arr, iter, cb) {
     var i = -1;
-    
+
     function next() {
         i++;
 
@@ -649,7 +649,6 @@ modules['nodes'] = {
 };
 })();
 (function() {
-
 var lib = modules["lib"];
 var Obj = modules["object"];
 
@@ -662,11 +661,20 @@ var Frame = Obj.extend({
         this.parent = parent;
     },
 
-    set: function(name, val) {
+    set: function(name, val, resolveUp) {
         // Allow variables with dots by automatically creating the
         // nested structure
         var parts = name.split('.');
         var obj = this.variables;
+        var frame = this;
+        
+        if(resolveUp) {
+            if((frame = this.resolve(parts[0]))) {
+                frame.set(name, val);
+                return;
+            }
+            frame = this;
+        }
 
         for(var i=0; i<parts.length - 1; i++) {
             var id = parts[i];
@@ -695,6 +703,15 @@ var Frame = Obj.extend({
             return val;
         }
         return p && p.lookup(name);
+    },
+
+    resolve: function(name) {
+        var p = this.parent;
+        var val = this.variables[name];
+        if(val != null) {
+            return this;
+        }
+        return p && p.resolve(name);
     },
 
     push: function() {
@@ -1599,7 +1616,7 @@ var Parser = Object.extend({
                       importTok.colno);
         }
 
-        var template = this.parsePrimary();
+        var template = this.parseExpression();
 
         if(!this.skipSymbol('as')) {
             this.fail('parseImport: expected "as" keyword',
@@ -1721,7 +1738,7 @@ var Parser = Object.extend({
         }
 
         var node = new nodeType(tag.lineno, tag.colno);
-        node.template = this.parsePrimary();
+        node.template = this.parseExpression();
 
         this.advanceAfterBlockEnd(tag.value);
         return node;
@@ -2542,7 +2559,7 @@ function walk(ast, func, depthFirst) {
         var contentArgs = mapCOW(ast.contentArgs, function(node) {
             return walk(node, func, depthFirst);
         });
-        
+
         if(args !== ast.args || contentArgs !== ast.contentArgs) {
             ast = new nodes[ast.typename](ast.extName,
                                           ast.prop,
@@ -3223,9 +3240,9 @@ var Compiler = Object.extend({
         // new ones if necessary
         lib.each(node.targets, function(target) {
             var name = target.value;
-            var id = frame.get(name);
+            var id = frame.lookup(name);
 
-            if (id === null) {
+            if (id == null) {
                 id = this.tmpid();
 
                 // Note: This relies on js allowing scope across
@@ -3244,10 +3261,7 @@ var Compiler = Object.extend({
             var id = ids[i];
             var name = target.value;
 
-            this.emitLine('frame.set("' + name + '", ' + id + ');');
-            if (frame.get(name) === null) {
-                frame.set(name, id);
-            }
+            this.emitLine('frame.set("' + name + '", ' + id + ', true);'); 
 
             // We are running this for every var, but it's very
             // uncommon to assign to multiple vars anyway
@@ -3419,7 +3433,7 @@ var Compiler = Object.extend({
             var v = this.tmpid();
             frame.set(node.name.value, v);
 
-            this.emitLine('for(var ' + i + '=0; ' + i + ' < ' + arr + '.length; ' + 
+            this.emitLine('for(var ' + i + '=0; ' + i + ' < ' + arr + '.length; ' +
                           i + '++) {');
             this.emitLine('var ' + v + ' = ' + arr + '[' + i + '];');
             this.emitLine('frame.set("' + node.name.value + '", ' + v + ');');
@@ -3432,7 +3446,7 @@ var Compiler = Object.extend({
 
             this.emitLine('}');
         }
-        
+
         this.emitLine('}');
         this.emitLine('frame = frame.pop();');
     },
@@ -3479,7 +3493,7 @@ var Compiler = Object.extend({
         }
 
         this.emitLoopBindings(node, loopUses, arr, i, len);
-        
+
         this.withScopedSyntax(function() {
             var buf;
             if(parallel) {
@@ -3576,26 +3590,24 @@ var Compiler = Object.extend({
         return funcId;
     },
 
-    _emitMacroEnd: function() {
+    _emitMacroEnd: function(bufferId) {
         this.emitLine('frame = frame.pop();');
-        this.emitLine('return new runtime.SafeString(' + this.buffer + ');');
+        this.emitLine('return new runtime.SafeString(' + bufferId + ');');
         this.emitLine('});');
     },
 
     compileMacro: function(node, frame) {
         frame = frame.push();
         var funcId = this._emitMacroBegin(node, frame);
+        var id = this.tmpid();
+        this.pushBufferId(id);
 
-        // Start a new output buffer, and set the old one back after
-        // we're done
-        var prevBuffer = this.buffer;
-        this.buffer = 'output';
-        this.emitLine('var ' + this.buffer + '= "";');
+        this.withScopedSyntax(function() {
+            this.compile(node.body, frame);
+        });
 
-        this.compile(node.body, frame);
-
-        this._emitMacroEnd();
-        this.buffer = prevBuffer;
+        this._emitMacroEnd(id);
+        this.popBufferId();
 
         // Expose the macro to the templates
         var name = node.name.value;
@@ -3819,9 +3831,9 @@ var Compiler = Object.extend({
 });
 
 // var c = new Compiler();
-// var src = 'hello {% foo %}bar{% endfoo %} end';
+// var src = '{% macro foo() %}{% include "include.html" %}{% endmacro %} This is my template {{ foo() }}';
 // var ast = transformer.transform(parser.parse(src));
-// nodes.printNodes(ast);
+//nodes.printNodes(ast);
 // c.compile(ast);
 // var tmpl = c.getCode();
 // console.log(tmpl);
@@ -3849,7 +3861,6 @@ modules['compiler'] = {
 };
 })();
 (function() {
-
 var lib = modules["lib"];
 var r = modules["runtime"];
 
@@ -4001,7 +4012,7 @@ var filters = {
     },
 
     length: function(arr) {
-        return arr.length;
+        return arr !== undefined ? arr.length : 0;
     },
 
     list: function(val) {
@@ -4262,7 +4273,8 @@ var filters = {
     },
 
     wordcount: function(str) {
-        return str.match(/\w+/g).length;
+        var words = (str) ? str.match(/\w+/g) : null;
+        return (words) ? words.length : null;
     },
 
     'float': function(val, def) {
@@ -4445,7 +4457,7 @@ modules['web-loaders'] = {
 };
 })();
 (function() {
-if(typeof window === 'undefined') {
+if(typeof window === 'undefined' || window !== this) {
     modules['loaders'] = modules["node-loaders"];
 }
 else {
@@ -4453,6 +4465,7 @@ else {
 }
 })();
 (function() {
+var path = modules["path"];
 var lib = modules["lib"];
 var Obj = modules["object"];
 var lexer = modules["lexer"];
@@ -4531,6 +4544,10 @@ var Environment = Obj.extend({
 
     getExtension: function(name) {
         return this.extensions[name];
+    },
+
+    addGlobal: function(name, value) {
+        globals[name] = value;
     },
 
     addFilter: function(name, func, async) {
@@ -4634,8 +4651,12 @@ var Environment = Obj.extend({
         var env = this;
 
         function NunjucksView(name, opts) {
-            this.name = name;
-            this.path = name;
+            this.name          = name;
+            this.path          = name;
+            this.defaultEngine = opts.defaultEngine;
+            this.ext           = path.extname(name);
+            if (!this.ext && !this.defaultEngine) throw new Error('No default engine was specified and no extension was provided.');
+            if (!this.ext) this.name += (this.ext = ('.' !== this.defaultEngine[0] ? '.' : '') + this.defaultEngine);
         }
 
         NunjucksView.prototype.render = function(opts, cb) {
@@ -4863,44 +4884,9 @@ var Template = Obj.extend({
 });
 
 // test code
-// var src = 'hello {% foo baz | bar %}hi{% endfoo %} end';
-// var env = new Environment(new builtin_loaders.FileSystemLoader('tests/templates', true), { dev: true });
-
-// function FooExtension() {
-//     this.tags = ['foo'];
-//     this._name = 'FooExtension';
-
-//     this.parse = function(parser, nodes) {
-//         var tok = parser.nextToken();
-//         var args = parser.parseSignature(null, true);
-//         parser.advanceAfterBlockEnd(tok.value);
-
-//         var body = parser.parseUntilBlocks('endfoo');
-//         parser.advanceAfterBlockEnd();
-
-//         return new nodes.CallExtensionAsync(this, 'run', args, [body]);
-//     };
-
-//     this.run = function(context, baz, body, cb) {
-//         cb(null, baz + '--' + body());
-//     };
-// }
-
-// env.addExtension('FooExtension', new FooExtension());
-// env.addFilter('bar', function(val, cb) {
-//     cb(null, val + '22222');
-// }, true);
-
-// var ctx = {};
-// var tmpl = new Template(src, env, null, null, true);
-// console.log("OUTPUT ---");
-
-// tmpl.render(ctx, function(err, res) {
-//     if(err) {
-//         throw err;
-//     }
-//     console.log(res);
-// });
+// var src = '{% macro foo() %}{% include "include.html" %}{% endmacro %}{{ foo() }}';
+// var env = new Environment(new builtin_loaders.FileSystemLoader('../tests/templates', true), { dev: true });
+// console.log(env.renderString(src, { name: 'poop' }));
 
 modules['environment'] = {
     Environment: Environment,
@@ -4988,6 +4974,7 @@ if(typeof define === 'function' && define.amd) {
 }
 else {
     window.nunjucks = nunjucks;
+    if(typeof module !== 'undefined') module.exports = nunjucks;
 }
 
 })();

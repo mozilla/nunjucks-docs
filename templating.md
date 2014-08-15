@@ -303,6 +303,8 @@ Keyword/default arguments are available. See [keyword arguments](#keyword-argume
 
 You can [import](#import) macros from other templates, allowing you to reuse them freely across your project.
 
+**Important note**: If you are using the asynchronous API, please be aware that you **cannot** do anything asynchronous inside macros. This is because macros are called like normal functions. In the future we may have a way to call a function asynchronously. If you do this now, the behavior is undefined.
+
 ### set
 
 `set` lets you create/modify a variable.
@@ -340,6 +342,9 @@ inherited when rendering by setting it in the context.
 ```jinja
 {% extends parentTemplate %}
 ```
+
+In fact, `extends` accepts any arbitrary expression, so you can pass
+anything into it: `{% extends name + ".html" %}`.
 
 ### block
 
@@ -390,6 +395,8 @@ You can even include templates in the middle of loops:
 
 This is especially useful for cutting up templates into pieces so that the browser-side environment can render the small chunks when it needs to change the page.
 
+`include` actually accepts any arbitrary expression, so you can pass anything into it: `{% include name + ".html" %}`.
+
 ### import
 
 `import` loads a different template and allows you to access its exported values. Macros and top-level assignments (done with [`set`](#set)) are exported from templates, allowing you to access them in a different template.
@@ -435,12 +442,16 @@ You can also import specific values from a template into the current namespace w
 {{ input('pass', type='password') }}
 ```
 
+`import` actually accepts any arbitrary expression, so you can pass anything into it: `{% import name + ".html" as obj %}`.
+
 ### raw
 
 If you want to output any of the special nunjucks tags like `{{`, you can use `raw` and anything inside of it will be output as plain text.
 
 ```jinja
-{% raw %}this will {{ not be processed }}{%{% endraw %}{% raw %} endraw %}
+{% raw %}
+  this will {{ not be processed }}
+{％ endraw %}
 ```
 
 ## Keyword Arguments

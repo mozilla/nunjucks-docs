@@ -225,6 +225,12 @@ Get an extension named **name**.
 {% endapi %}
 
 {% api %}
+addGlobal
+env.addGlobal(name, value)
+Add a global value that will be available to all templates. Note: this will overwrite any existing global called `name`.
+{% endapi %}
+
+{% api %}
 getTemplate
 env.getTemplate(name, [eagerCompile], [callback])
 
