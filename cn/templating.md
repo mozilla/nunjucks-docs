@@ -89,7 +89,7 @@ This is the default content
 
 <section class="right">
   This is the right side!
-</section>  
+</section>
 ```
 
 你可以将继承的模板设为一个变量，这样就可以动态指定继承的模板。
@@ -256,6 +256,8 @@ var env = new nunjucks.Environment(AsyncLoaderFromDatabase, opts);
 
 还可以从其他模板 [import](#import) 宏，可以使宏在整个项目中复用。
 
+**重要**：如果你使用异步 API，请注意你 **不能** 在宏中做任何异步的操作，因为宏只是被简单的函数调用。将来会提供一种异步的调用方式，现在使用是不支持的。
+
 ### set
 
 `set` 可以设置和修改变量。
@@ -283,6 +285,8 @@ var env = new nunjucks.Environment(AsyncLoaderFromDatabase, opts);
 ```jinja
 {% extends "base.html" %}
 ```
+
+`extends` 可以接受任何表达式，你可以如下传入: `{% extends name + ".html" as obj %}`.
 
 ### block
 
@@ -331,6 +335,8 @@ The name of the item is: {{ item.name }}
 
 This is especially useful for cutting up templates into pieces so that the browser-side environment can render the small chunks when it needs to change the page.
 
+`include` 可以接受任何表达式，你可以如下传入: `{% include name + ".html" as obj %}`.
+
 ### import
 
 `import` 可加载不同的模板，可使你操作模板输出的数据，模板将会输出宏 (macro) 和顶级作用域的赋值 (使用 [`set`](#set))。
@@ -377,12 +383,16 @@ This is especially useful for cutting up templates into pieces so that the brows
 {{ input('pass', type='password') }}
 ```
 
+`import` 可以接受任何表达式，你可以如下传入: `{% import name + ".html" as obj %}`.
+
 ### raw
 
 如果你想输出一些 nunjucks 特殊的标签 (如 `{{`)，可以使用 `raw` 使所有的内容输出为纯文本。
 
 ```jinja
-{% raw %}this will {{ not be processed }}{%{% endraw %}{% raw %} endraw %}
+{% raw %}
+  this will {{ not be processed }}
+{％ endraw %}
 ```
 
 ## 关键字参数
