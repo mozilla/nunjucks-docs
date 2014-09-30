@@ -454,6 +454,22 @@ If you want to output any of the special nunjucks tags like `{{`, you can use `r
 {％ endraw %}
 ```
 
+### call
+
+A `call` block enables you to call a macro with all the text inside the tag. This is helpful if you want to pass a lot of content into a macro. The content is available inside the macro as `caller()`.
+
+```jinja
+{% macro add(x, y) %}
+{{ caller() }}: {{ x + y }}
+{% endmacro%}
+
+{% call add(1, 2) -%}
+The result is
+{%- endcall %}
+```
+
+The above example would output "The result is: 3".
+
 ## Keyword Arguments
 
 jinja2 uses Python's keyword arguments support to allow keyword arguments in functions, filters, and macros. Nunjucks supports keyword arguments as well by introduction a new calling convention.
@@ -609,6 +625,22 @@ If you have passed a javascript method to your template, you can call it like no
 {{ foo(1, 2, 3) }}
 ```
 
+### Regular Expressions
+
+A regular expression can be created just like JavaScript:
+
+```
+{{ /^foo.*/ }}
+{{ /bar$/g }}
+```
+
+The supported flags are the following. See [Regex on MDN](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/RegExp) for more information.
+
+* `g`: apply globally
+* `i`: case insensitive
+* `m`: multiline
+* `y`: sticky
+
 ## Autoescaping
 
 If autoescaping is turned on in the environment, all output will automatically be escaped for safe output. To manually mark output as safe, use the `safe` filter. Nunjucks will not escape this output.
@@ -652,7 +684,8 @@ An easy way to rotate through several values is to use `cycler`, which takes any
 {% endfor %}
 ```
 
-In the above example, odd rows have the class "odd" and even rows have the class "even".
+In the above example, odd rows have the class "odd" and even rows have the class "even". You can access the current item on the `current` property s
+(in the above example, `cls.current`).
 
 ### joiner([separator])
 
@@ -688,7 +721,7 @@ Nunjucks has ported most of jinja's filters (click through for documentation):
 * [list](http://jinja.pocoo.org/docs/templates/#list)
 * [lower](http://jinja.pocoo.org/docs/templates/#lower)
 * [random](http://jinja.pocoo.org/docs/templates/#random)
-* [replace](http://jinja.pocoo.org/docs/templates/#replace)
+* [replace](http://jinja.pocoo.org/docs/templates/#replace) (the first argument can take a regular expression)
 * [reverse](http://jinja.pocoo.org/docs/templates/#reverse)
 * [round](http://jinja.pocoo.org/docs/templates/#round)
 * [slice](http://jinja.pocoo.org/docs/templates/#slice)
