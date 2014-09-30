@@ -173,6 +173,13 @@ env.getExtension(name)
 {% endapi %}
 
 {% api %}
+addGlobal
+env.addGlobal(name, value)
+
+添加一个全局变量，可以在所有模板使用。注意：这个会覆盖已有的 `name` 变量。
+{% endapi %}
+
+{% api %}
 getTemplate
 env.getTemplate(name, [eagerCompile], [callback])
 
@@ -283,6 +290,10 @@ function MyLoader(opts) {
 
 MyLoader.prototype.getSource = function(name) {
     // load the template
+    // return an object with:
+    //   - src:     String. The template source.
+    //   - path:    String. Path to template.
+    //   - noCache: Bool. Don't cache the template (optional).
 }
 ```
 
@@ -295,7 +306,7 @@ var MyLoader = nunjucks.Loader.extend({
         // and call `this.emit('update', name)` when a template
         // is changed
     }
-    
+
     getSource: function(name) {
         // load the template
     }
@@ -311,7 +322,7 @@ var MyLoader = nunjucks.Loader.extend({
 ```js
 var MyLoader = nunjucks.Loader.extend({
     async: true,
-    
+
     getSource: function(name, callback) {
         // load the template
         // ...
