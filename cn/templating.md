@@ -462,7 +462,7 @@ foo(1, 2, { bar: 3, baz: 4})
 ```jinja
 {% for i in [1,2,3,4,5] -%}
   {{ i }}
-{% endfor %}
+{%- endfor %}
 ```
 
 上面准确的输出为 "12345"，`-%}` 会去除标签右侧的空白字符，`{%-` 会去除标签之前的空白字符。
@@ -577,7 +577,7 @@ Examples:
 ```jinja
 {% for i in range(0, 5) -%}
   {{ i }},
-{% endfor %}
+{%- endfor %}
 ```
 
 上面输出 `0,1,2,3,4`.
@@ -603,7 +603,7 @@ Examples:
 {% set comma = joiner() %}
 {% for tag in tags -%}
   {{ comma() }} {{ tag }}
-{% endfor %}
+{%- endfor %}
 ```
 
 如果 `tags` 为 `["food", "beer", "dessert"]`, 上面将输出 `food, beer, dessert`。
