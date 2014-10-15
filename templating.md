@@ -472,7 +472,7 @@ The above example would output "The result is: 3".
 
 ## Keyword Arguments
 
-jinja2 uses Python's keyword arguments support to allow keyword arguments in functions, filters, and macros. Nunjucks supports keyword arguments as well by introduction a new calling convention.
+jinja2 uses Python's keyword arguments support to allow keyword arguments in functions, filters, and macros. Nunjucks supports keyword arguments as well by introducing a new calling convention.
 
 Keyword arguments look like this:
 
