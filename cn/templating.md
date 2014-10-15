@@ -572,7 +572,7 @@ Examples:
 
 ### range([start], stop, [step])
 
-如果你需要遍历固定范围的数字可以使用 `range`，`start` (默认为 0) 为起始数字，`start` 为结束数字，`step` 为间隔 (默认为 1)。
+如果你需要遍历固定范围的数字可以使用 `range`，`start` (默认为 0) 为起始数字，`stop` 为结束数字，`step` 为间隔 (默认为 1)。
 
 ```jinja
 {% for i in range(0, 5) -%}
