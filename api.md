@@ -822,7 +822,7 @@ function RemoteExtension() {
         parser.advanceAfterBlockEnd(tok.value);
 
         // parse the body and possibly the error block, which is optional
-        var body = parser.parseUntilBlocks('error', 'endtruncate');
+        var body = parser.parseUntilBlocks('error', 'endremote');
         var errorBody = null;
 
         if(parser.skipSymbol('error')) {
