@@ -426,20 +426,20 @@ We can import this template and bind all of its exported values to a variable so
 {% import "forms.html" as forms %}
 
 {{ forms.label('Username') }}
-{{ forms.input('user') }}
+{{ forms.field('user') }}
 {{ forms.label('Password') }}
-{{ forms.input('pass', type='password') }}
+{{ forms.field('pass', type='password') }}
 ```
 
 You can also import specific values from a template into the current namespace with `from import`:
 
 ```jinja
-{% from "forms.html" import input, label as description %}
+{% from "forms.html" import field, label as description %}
 
 {{ description('Username') }}
-{{ input('user') }}
+{{ field('user') }}
 {{ description('Password') }}
-{{ input('pass', type='password') }}
+{{ field('pass', type='password') }}
 ```
 
 `import` actually accepts any arbitrary expression, so you can pass anything into it: `{% import name + ".html" as obj %}`.
