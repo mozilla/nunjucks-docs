@@ -351,7 +351,7 @@ rendered.
 This loader also recognizes when precompiled templates are available
 and automatically uses them instead of fetching over HTTP. In
 production, this should always be the case. See
-[Precompiling Templates](#precompiling-templates).
+[Precompiling](#precompiling).
 
 ```js
 // Load templates from /views
