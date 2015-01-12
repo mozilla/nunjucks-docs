@@ -102,8 +102,7 @@ This is the default content
 
 ## 标签
 
-Tags are special blocks that perform operations on sections of the
-template. Nunjucks 包含一些内置的标签，你也可以[自定义](api.html#custom-tags)。
+标签是一些特殊的区块，它们可以对模板执行一些操作。Nunjucks 包含一些内置的标签，你也可以[自定义](api.html#custom-tags)。
 
 ### if
 
@@ -333,7 +332,7 @@ The name of the item is: {{ item.name }}
 {% endfor %}
 ```
 
-This is especially useful for cutting up templates into pieces so that the browser-side environment can render the small chunks when it needs to change the page.
+这一点可以帮助我们把模板切分成更小的部分，从而使得在浏览器上，当我们需要改变页面时，我们可以渲染这些小部分的模板，而非一整个的大的模板。
 
 `include` 可以接受任何表达式，你可以如下传入: `{% include name + ".html" as obj %}`.
 
@@ -609,8 +608,6 @@ Examples:
 如果 `tags` 为 `["food", "beer", "dessert"]`, 上面将输出 `food, beer, dessert`。
 
 ## Builtin Filters
-
-Nunjucks has ported most of jinja's filters (click through for documentation):
 
 Nunjucks 已经支持了大部分 jinja 的过滤器 (点击查看文档)。
 
