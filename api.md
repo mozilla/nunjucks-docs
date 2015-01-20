@@ -186,7 +186,7 @@ loading a template.
 
 {% raw %}
 ```js
-var res = nunjucks.render('Hello {{ username }}', { username: 'James' });
+var res = nunjucks.renderString('Hello {{ username }}', { username: 'James' });
 ```
 {% endraw %}
 {% endapi %}
